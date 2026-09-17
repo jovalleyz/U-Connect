@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Emisiones por Broker — Ago/Sep 2026 | UNIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700;800&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --navy:#002169;
+    --navy-tint:#5B79B0;
+    --orange:#FF8F00;
+    --guinda:#501100;
+    --neutral:#F5F5F5;
+    --gray:#9AA1AC;
+    --ink:#1A1A1A;
+    --bg: #ffffff;
+    --card-bg:#ffffff;
+    --border:#E7E7EA;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Work Sans', Arial, sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    padding:28px 20px 48px;
+  }
+  .wrap{max-width:1120px;margin:0 auto;}
+  header{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-bottom:22px;
+    border-bottom:3px solid var(--navy);
+    padding-bottom:16px;
+  }
+  .brand{display:flex; align-items:baseline; gap:10px;}
+  .brand .logo{
+    font-family:'Hanken Grotesk', sans-serif;
+    font-weight:800;
+    font-size:28px;
+    letter-spacing:-0.5px;
+  }
+  .brand .logo .un{color:var(--navy);}
+  .brand .logo .it{color:var(--orange);}
+  h1{
+    font-family:'Hanken Grotesk', sans-serif;
+    font-weight:700;
+    font-size:22px;
+    margin:2px 0 4px;
+  }
+  .subtitle{font-size:13.5px; color:var(--gray); margin:0;}
+  .period-badge{
+    font-family:'Hanken Grotesk', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    background:var(--navy);
+    color:#fff;
+    padding:7px 14px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+  .kpis{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin-bottom:24px;
+  }
+  .kpi{
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px 18px;
+    border-top:4px solid var(--navy);
+  }
+  .kpi:nth-child(2){border-top-color:var(--orange);}
+  .kpi:nth-child(3){border-top-color:var(--guinda);}
+  .kpi:nth-child(4){border-top-color:var(--navy-tint);}
+  .kpi .label{font-size:12px; color:var(--gray); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:6px;}
+  .kpi .value{font-family:'Hanken Grotesk', sans-serif; font-weight:800; font-size:24px;}
+  .kpi .value small{font-size:13px; font-weight:600; color:var(--gray);}
+  .card{
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:20px 20px 8px;
+    margin-bottom:22px;
+  }
+  .card h2{
+    font-family:'Hanken Grotesk', sans-serif;
+    font-size:16px;
+    margin:0 0 2px;
+  }
+  .card .card-sub{font-size:12.5px; color:var(--gray); margin:0 0 14px;}
+  .chart-box{position:relative; width:100%;}
+  #timelineChart{max-height:340px;}
+  #volumeChart{max-height:260px;}
+  .grid-2{
+    display:grid;
+    grid-template-columns:1.4fr 1fr;
+    gap:20px;
+    align-items:start;
+  }
+  table{width:100%; border-collapse:collapse; font-size:13px; margin-top:4px;}
+  th,td{text-align:left; padding:9px 10px; border-bottom:1px solid var(--border);}
+  th{font-family:'Hanken Grotesk', sans-serif; font-size:11.5px; text-transform:uppercase; letter-spacing:0.3px; color:var(--gray); font-weight:600;}
+  td.num{text-align:right; font-variant-numeric:tabular-nums;}
+  .dot{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:7px; vertical-align:middle;}
+  .tag{
+    display:inline-block; font-size:11px; padding:2px 8px; border-radius:10px; font-weight:600;
+  }
+  .tag.est{background:rgba(255,143,0,0.15); color:var(--orange);}
+  .tag.zero{background:rgba(154,161,172,0.2); color:var(--gray);}
+  footer{
+    font-size:11.5px;
+    color:var(--gray);
+    text-align:center;
+    margin-top:10px;
+    line-height:1.6;
+  }
+  .note{
+    font-size:12.5px;
+    color:var(--gray);
+    background:var(--neutral);
+    border-radius:10px;
+    padding:10px 14px;
+    margin-top:6px;
+  }
+  @media (max-width:760px){
+    .kpis{grid-template-columns:repeat(2,1fr);}
+    .grid-2{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="brand"><span class="logo"><span class="un">UN</span><span class="it">IT</span></span></div>
+      <h1>Emisiones de Pólizas de Vehículo por Broker</h1>
+      <p class="subtitle">Canales digitales / marketplaces &middot; Fecha de captura de emisión</p>
+    </div>
+    <div class="period-badge">Agosto 1 – Septiembre 14, 2026</div>
+  </header>
+
+  <div class="kpis">
+    <div class="kpi">
+      <div class="label">Pólizas emitidas</div>
+      <div class="value">18</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Prima neta acumulada</div>
+      <div class="value">RD$ 662,499</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Broker líder</div>
+      <div class="value" style="font-size:19px">Marsh Digital <small>8 pólizas</small></div>
+    </div>
+    <div class="kpi">
+      <div class="label">Brokers sin actividad</div>
+      <div class="value" style="font-size:19px">1 <small>Facilito.do</small></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Línea de tiempo de emisiones por broker</h2>
+    <p class="card-sub">Cada punto es una póliza emitida. Tamaño del punto ≈ prima neta. Clic en la leyenda para aislar un broker.</p>
+    <div class="chart-box">
+      <canvas id="timelineChart"></canvas>
+    </div>
+
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h2>Pólizas por broker y mes</h2>
+      <p class="card-sub">Conteo de emisiones, agosto vs. lo que va de septiembre.</p>
+      <div class="chart-box">
+        <canvas id="volumeChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Detalle por broker</h2>
+      <p class="card-sub">Prima neta confirmada por broker.</p>
+      <table>
+        <thead>
+          <tr><th>Broker</th><th class="num">Ago</th><th class="num">Sep</th><th class="num">Prima neta (RD$)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="dot" style="background:#FF8F00"></span>Marsh Digital</td><td class="num">4</td><td class="num">4</td><td class="num">297,229.33</td></tr>
+          <tr><td><span class="dot" style="background:#501100"></span>Spid Digital</td><td class="num">2</td><td class="num">4</td><td class="num">261,871.69</td></tr>
+          <tr><td><span class="dot" style="background:#002169"></span>Contigo Marketplace <span style="font-size:11px;color:var(--gray)">(Suc. Online Shop)</span></td><td class="num">2</td><td class="num">1</td><td class="num">78,529.84</td></tr>
+          <tr><td><span class="dot" style="background:#5B79B0"></span>Blu Consultores</td><td class="num">0</td><td class="num">1</td><td class="num">24,868.00</td></tr>
+          <tr><td><span class="dot" style="background:#9AA1AC"></span>Facilito.do (Miguel Cuello) <span class="tag zero">0 ventas</span></td><td class="num">0</td><td class="num">0</td><td class="num">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    UNIT S.A. — Dirección Insurtech — U-Connect
+  </footer>
+
+</div>
+
+<script>
+const COLORS = {
+  onlineshop:  '#002169',
+  marsh:       '#FF8F00',
+  orange:      '#FF8F00',
+  spid:        '#501100',
+  blu:         '#5B79B0',
+  facilito:    '#9AA1AC'
+};
+
+const isDark = () => false;
+const gridColor = () => isDark() ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+const tickColor = () => isDark() ? '#AEB6CC' : '#5b6472';
+
+function radiusFor(monto){
+  if(monto == null) return 9;
+  return Math.max(7, Math.min(22, 6 + monto/4500));
+}
+
+// ---- Timeline (swimlane) chart ----
+const laneOrder = ['Marsh Digital','Spid Digital','Contigo Marketplace','Blu Consultores','Facilito.do (sin ventas)'];
+// Eje X categórico en orden cronológico (evita depender de un adaptador de fechas externo)
+const dateOrder = ['01 Ago','13 Ago','14 Ago','20 Ago','21 Ago','24 Ago','26 Ago','27 Ago','02 Sep','08 Sep','09 Sep','14 Sep','15 Sep'];
+
+const marshData = [
+  {x:'14 Ago', y:'Marsh Digital', monto:83903.46, poliza:'1-2-504-0065900', cliente:'Sandra Tejeda'},
+  {x:'20 Ago', y:'Marsh Digital', monto:6667.52,  poliza:'1-2-504-0066270', cliente:'Juan Fernando De Los Santos'},
+  {x:'26 Ago', y:'Marsh Digital', monto:6667.52,  poliza:'1-2-504-0066615', cliente:'Génesis Jiménez Suero'},
+  {x:'27 Ago', y:'Marsh Digital', monto:null,     poliza:'1-2-504-0066704', cliente:'Santan… (monto pendiente)'},
+  {x:'08 Sep', y:'Marsh Digital', monto:null,     poliza:'A-PA-0000006327', cliente:'Jaime Pe… (monto pendiente)'},
+  {x:'08 Sep', y:'Marsh Digital', monto:null,     poliza:'30-35-156695',    cliente:'Indhira… (monto pendiente)'},
+  {x:'14 Sep', y:'Marsh Digital', monto:null,     poliza:'1-2-504-0067769', cliente:'Jesús G… (monto pendiente)'},
+  {x:'15 Sep', y:'Marsh Digital', monto:43307.32, poliza:'1-2-504-0067781', cliente:'Teresa Patricia Janer Bueno'}
+];
+const spidData = [
+  {x:'13 Ago', y:'Spid Digital', monto:41571.08, poliza:'451862',          cliente:'Massiel Victoria Mercedes Muñoz'},
+  {x:'21 Ago', y:'Spid Digital', monto:43170.32, poliza:'456265',          cliente:'Mónica María Gil Cordero'},
+  {x:'02 Sep', y:'Spid Digital', monto:6667.52,  poliza:'1-2-500-0391945', cliente:'Isabel Quirós'},
+  {x:'02 Sep', y:'Spid Digital', monto:6667.52,  poliza:'1-2-500-0392115', cliente:'Salvador Vidal Monterrey'},
+  {x:'08 Sep', y:'Spid Digital', monto:null,     poliza:'1-25-29654',      cliente:'Pedro García (monto pendiente)'},
+  {x:'09 Sep', y:'Spid Digital', monto:null,     poliza:'1-2-500-0392279', cliente:'José Manuel Rivas Cepeda (monto pendiente)'}
+];
+const onlineShopData = [
+  {x:'24 Ago', y:'Contigo Marketplace', monto:32117.77, poliza:'A-PA-0000006225', cliente:'Yesenia Pichardo Valerio'},
+  {x:'27 Ago', y:'Contigo Marketplace', monto:5669.24,  poliza:'A-PL-0000001507', cliente:'Jeremy Lantigua Ortiz'},
+  {x:'15 Sep', y:'Contigo Marketplace', monto:40742.83, poliza:'A-PA-0000006404', cliente:'Penélope De León Veras'}
+];
+const bluData = [
+  {x:'09 Sep', y:'Blu Consultores', monto:24868.00, poliza:'—', cliente:'Blu Consultores'}
+];
+// carril visible sin ventas: punto invisible para forzar la categoría en el eje
+const facilitoData = [
+  {x:'01 Ago', y:'Facilito.do (sin ventas)', monto:0, poliza:null, cliente:null, oculto:true}
+];
+
+function tooltipLabel(ctx){
+  const d = ctx.raw;
+  if(d.oculto) return 'Sin emisiones registradas en el período';
+  const montoTxt = d.monto != null ? `RD$ ${d.monto.toLocaleString('es-DO',{minimumFractionDigits:2})}` : 'Prima neta N/D';
+  const polizaTxt = d.poliza ? `Póliza ${d.poliza}` : '';
+  const estTxt = d.estimado ? ' (fecha estimada)' : '';
+  return [`${d.x} 2026${estTxt}`, `${d.cliente || ''}`, `${montoTxt} · ${polizaTxt}`];
+}
+
+new Chart(document.getElementById('timelineChart'), {
+  type: 'bubble',
+  data: {
+    datasets: [
+      { label:'Marsh Digital', data: marshData, backgroundColor: COLORS.marsh+'CC', borderColor: COLORS.marsh, borderWidth:1.5,
+        radius: (c)=>radiusFor(c.raw.monto) },
+      { label:'Spid Digital', data: spidData, backgroundColor: COLORS.spid+'CC', borderColor: COLORS.spid, borderWidth:1.5,
+        radius: (c)=>radiusFor(c.raw.monto) },
+      { label:'Contigo Marketplace', data: onlineShopData, backgroundColor: COLORS.onlineshop+'CC', borderColor: COLORS.onlineshop, borderWidth:1.5,
+        radius: (c)=>radiusFor(c.raw.monto) },
+      { label:'Blu Consultores', data: bluData, backgroundColor: COLORS.blu+'CC', borderColor: COLORS.blu, borderWidth:1.5,
+        radius: (c)=>radiusFor(c.raw.monto) },
+      { label:'Facilito.do — 0 ventas', data: facilitoData, backgroundColor: 'transparent', borderColor: 'transparent',
+        radius: 0.1, pointStyle:'rectRot' }
+    ]
+  },
+  options: {
+    responsive:true,
+    maintainAspectRatio:false,
+    layout:{padding:{top:6,bottom:2}},
+    scales: {
+      x: {
+        type:'category',
+        labels: dateOrder,
+        offset:true,
+        grid:{ color: gridColor() },
+        ticks:{ color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11} }
+      },
+      y: {
+        type:'category',
+        labels: laneOrder,
+        offset:true,
+        grid:{ color: gridColor() },
+        ticks:{ color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11.5, weight:'600'} }
+      }
+    },
+    plugins: {
+      legend:{
+        position:'bottom',
+        labels:{ color: tickColor(), usePointStyle:true, boxWidth:8, font:{family:"'Work Sans', sans-serif", size:11.5} }
+      },
+      tooltip:{
+        callbacks:{ label: tooltipLabel },
+        titleFont:{family:"'Hanken Grotesk', sans-serif"},
+        bodyFont:{family:"'Work Sans', sans-serif"}
+      }
+    }
+  }
+});
+
+// ---- Volumen mensual por broker ----
+new Chart(document.getElementById('volumeChart'), {
+  type:'bar',
+  data:{
+    labels:['Marsh', 'Spid', 'Contigo Mkt', 'Blu Cons.', 'Facilito.do'],
+    datasets:[
+      { label:'Agosto', data:[4,2,2,0,0], backgroundColor: COLORS.onlineshop, borderRadius:4, maxBarThickness:26 },
+      { label:'Septiembre (parcial)', data:[4,4,1,1,0], backgroundColor: COLORS.orange, borderRadius:4, maxBarThickness:26 }
+    ]
+  },
+  options:{
+    responsive:true,
+    maintainAspectRatio:false,
+    scales:{
+      x:{ grid:{display:false}, ticks:{ color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11} } },
+      y:{ beginAtZero:true, ticks:{ stepSize:1, color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11} }, grid:{ color: gridColor() } }
+    },
+    plugins:{
+      legend:{ position:'bottom', labels:{ color: tickColor(), boxWidth:10, font:{family:"'Work Sans', sans-serif", size:11.5} } }
+    }
+  }
+});
+</script>
+</body>
+</html>
