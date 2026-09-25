@@ -20,6 +20,7 @@
 <meta name="twitter:title" content="Emisiones U-Connect">
 <meta name="twitter:description" content="Insurtech · Emisiones Canales Digitales UNIT">
 <meta name="twitter:image" content="https://jovalleyz.github.io/U-Connect/og-image.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700;800&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -52,7 +53,7 @@
     justify-content:space-between;
     flex-wrap:wrap;
     gap:12px;
-    margin-bottom:22px;
+    margin-bottom:18px;
     border-bottom:3px solid var(--navy);
     padding-bottom:16px;
   }
@@ -82,6 +83,30 @@
     border-radius:20px;
     white-space:nowrap;
   }
+
+  /* Tabs */
+  .tabnav{
+    display:flex;
+    gap:6px;
+    margin-bottom:22px;
+    border-bottom:1px solid var(--border);
+  }
+  .tabbtn{
+    font-family:'Hanken Grotesk', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    color:var(--gray);
+    background:none;
+    border:none;
+    border-bottom:3px solid transparent;
+    padding:10px 4px;
+    margin-right:22px;
+    cursor:pointer;
+  }
+  .tabbtn.active{ color:var(--navy); border-bottom-color:var(--orange); }
+  .tabpanel{ display:none; }
+  .tabpanel.active{ display:block; }
+
   .kpis{
     display:grid;
     grid-template-columns:repeat(4,1fr);
@@ -117,6 +142,7 @@
   .chart-box{position:relative; width:100%;}
   #timelineChart{max-height:340px;}
   #volumeChart{max-height:260px;}
+  #contigoMonthChart{max-height:280px;}
   .grid-2{
     display:grid;
     grid-template-columns:1.4fr 1fr;
@@ -133,6 +159,7 @@
   }
   .tag.est{background:rgba(255,143,0,0.15); color:var(--orange);}
   .tag.zero{background:rgba(154,161,172,0.2); color:var(--gray);}
+  .tag.nd{background:rgba(154,161,172,0.2); color:var(--gray);}
   footer{
     font-size:11.5px;
     color:var(--gray);
@@ -148,6 +175,23 @@
     padding:10px 14px;
     margin-top:6px;
   }
+  .yearfilter{
+    display:flex;
+    gap:8px;
+    margin-bottom:16px;
+  }
+  .yearbtn{
+    font-family:'Hanken Grotesk', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    color:var(--navy);
+    background:#fff;
+    border:1.5px solid var(--border);
+    border-radius:20px;
+    padding:6px 16px;
+    cursor:pointer;
+  }
+  .yearbtn.active{ background:var(--navy); color:#fff; border-color:var(--navy); }
   @media (max-width:760px){
     .kpis{grid-template-columns:repeat(2,1fr);}
     .grid-2{grid-template-columns:1fr;}
@@ -160,65 +204,137 @@
   <header>
     <div>
       <div class="brand"><span class="logo"><span class="un">UN</span><span class="it">IT</span></span></div>
-      <h1>Emisiones de Pólizas de Vehículo por Broker</h1>
+      <h1>Emisiones de Pólizas de Vehículo</h1>
       <p class="subtitle">Canales digitales / marketplaces &middot; Fecha de captura de emisión</p>
     </div>
-    <div class="period-badge">Agosto 1 – Septiembre 14, 2026</div>
   </header>
 
-  <div class="kpis">
-    <div class="kpi">
-      <div class="label">Pólizas emitidas</div>
-      <div class="value">18</div>
-    </div>
-    <div class="kpi">
-      <div class="label">Prima neta acumulada</div>
-      <div class="value">RD$ 662,499</div>
-    </div>
-    <div class="kpi">
-      <div class="label">Broker líder</div>
-      <div class="value" style="font-size:19px">Marsh Digital <small>8 pólizas</small></div>
-    </div>
-    <div class="kpi">
-      <div class="label">Brokers sin actividad</div>
-      <div class="value" style="font-size:19px">1 <small>Facilito.do</small></div>
-    </div>
+  <div class="tabnav">
+    <button class="tabbtn active" id="btn-tab-corredores" onclick="showTab('corredores')">Corredores (Marsh · Spid · Blu)</button>
+    <button class="tabbtn" id="btn-tab-contigo" onclick="showTab('contigo')">Contigo Marketplace</button>
   </div>
 
-  <div class="card">
-    <h2>Línea de tiempo de emisiones por broker</h2>
-    <p class="card-sub">Cada punto es una póliza emitida. Tamaño del punto ≈ prima neta. Clic en la leyenda para aislar un broker.</p>
-    <div class="chart-box">
-      <canvas id="timelineChart"></canvas>
-    </div>
+  <!-- ======================= TAB 1: CORREDORES ======================= -->
+  <div class="tabpanel active" id="tab-corredores">
 
-  </div>
+    <div class="period-badge" style="display:inline-block; margin-bottom:16px;">Agosto 1 – Septiembre 14, 2026</div>
 
-  <div class="grid-2">
-    <div class="card">
-      <h2>Pólizas por broker y mes</h2>
-      <p class="card-sub">Conteo de emisiones, agosto vs. lo que va de septiembre.</p>
-      <div class="chart-box">
-        <canvas id="volumeChart"></canvas>
+    <div class="kpis">
+      <div class="kpi">
+        <div class="label">Pólizas emitidas</div>
+        <div class="value">15</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Prima neta acumulada</div>
+        <div class="value">RD$ 583,969</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Broker líder</div>
+        <div class="value" style="font-size:19px">Marsh Digital <small>8 pólizas</small></div>
+      </div>
+      <div class="kpi">
+        <div class="label">Brokers sin actividad</div>
+        <div class="value" style="font-size:19px">1 <small>Facilito.do</small></div>
       </div>
     </div>
 
     <div class="card">
-      <h2>Detalle por broker</h2>
-      <p class="card-sub">Prima neta confirmada por broker.</p>
+      <h2>Línea de tiempo de emisiones por broker</h2>
+      <p class="card-sub">Cada punto es una póliza emitida. Tamaño del punto ≈ prima neta. Clic en la leyenda para aislar un broker.</p>
+      <div class="chart-box">
+        <canvas id="timelineChart"></canvas>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>Pólizas por broker y mes</h2>
+        <p class="card-sub">Conteo de emisiones, agosto vs. lo que va de septiembre.</p>
+        <div class="chart-box">
+          <canvas id="volumeChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Detalle por broker</h2>
+        <p class="card-sub">Prima neta confirmada por broker.</p>
+        <table>
+          <thead>
+            <tr><th>Broker</th><th class="num">Ago</th><th class="num">Sep</th><th class="num">Prima neta (RD$)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="dot" style="background:#FF8F00"></span>Marsh Digital</td><td class="num">4</td><td class="num">4</td><td class="num">297,229.33</td></tr>
+            <tr><td><span class="dot" style="background:#501100"></span>Spid Digital</td><td class="num">2</td><td class="num">4</td><td class="num">261,871.69</td></tr>
+            <tr><td><span class="dot" style="background:#5B79B0"></span>Blu Consultores</td><td class="num">0</td><td class="num">1</td><td class="num">24,868.00</td></tr>
+            <tr><td><span class="dot" style="background:#9AA1AC"></span>Facilito.do (Miguel Cuello) <span class="tag zero">0 ventas</span></td><td class="num">0</td><td class="num">0</td><td class="num">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Mix de producto: marca y modelo</h2>
+      <p class="card-sub">Vehículo asegurado por broker, período Ago–Sep 2026.</p>
       <table>
         <thead>
-          <tr><th>Broker</th><th class="num">Ago</th><th class="num">Sep</th><th class="num">Prima neta (RD$)</th></tr>
+          <tr><th>Broker</th><th>Marca</th><th>Modelo</th><th>Año</th><th class="num">Pólizas con dato</th></tr>
         </thead>
         <tbody>
-          <tr><td><span class="dot" style="background:#FF8F00"></span>Marsh Digital</td><td class="num">4</td><td class="num">4</td><td class="num">297,229.33</td></tr>
-          <tr><td><span class="dot" style="background:#501100"></span>Spid Digital</td><td class="num">2</td><td class="num">4</td><td class="num">261,871.69</td></tr>
-          <tr><td><span class="dot" style="background:#002169"></span>Contigo Marketplace <span style="font-size:11px;color:var(--gray)">(Suc. Online Shop)</span></td><td class="num">2</td><td class="num">1</td><td class="num">78,529.84</td></tr>
-          <tr><td><span class="dot" style="background:#5B79B0"></span>Blu Consultores</td><td class="num">0</td><td class="num">1</td><td class="num">24,868.00</td></tr>
-          <tr><td><span class="dot" style="background:#9AA1AC"></span>Facilito.do (Miguel Cuello) <span class="tag zero">0 ventas</span></td><td class="num">0</td><td class="num">0</td><td class="num">—</td></tr>
+          <tr><td><span class="dot" style="background:#FF8F00"></span>Marsh Digital</td><td colspan="3"><span class="tag nd">N/D — reporte fuente sin columna Marca/Modelo/Año</span></td><td class="num">0 / 8</td></tr>
+          <tr><td><span class="dot" style="background:#501100"></span>Spid Digital</td><td colspan="3"><span class="tag nd">N/D — reporte fuente sin columna Marca/Modelo/Año</span></td><td class="num">0 / 6</td></tr>
+          <tr><td><span class="dot" style="background:#5B79B0"></span>Blu Consultores</td><td>JEEP</td><td>PATRIOT</td><td>2011</td><td class="num">1 / 1</td></tr>
         </tbody>
       </table>
+      <div class="note">📌 Marsh Digital y Spid Digital no incluyen columnas de Marca/Modelo/Año en su reporte de emisiones — para completar este análisis de mix de producto en ambos canales, hay que solicitar esa extracción adicional al broker o al sistema origen.</div>
     </div>
+
+  </div>
+
+  <!-- ======================= TAB 2: CONTIGO ======================= -->
+  <div class="tabpanel" id="tab-contigo">
+
+    <div class="yearfilter">
+      <button class="yearbtn" id="yr-2025" onclick="setContigoYear('2025')">2025</button>
+      <button class="yearbtn active" id="yr-2026" onclick="setContigoYear('2026')">2026</button>
+      <button class="yearbtn" id="yr-todos" onclick="setContigoYear('todos')">Todo</button>
+    </div>
+
+    <div class="kpis" id="contigo-kpis"></div>
+
+    <div class="card">
+      <h2 id="contigo-chart-title">Pólizas emitidas por mes — 2026</h2>
+      <p class="card-sub" id="contigo-chart-sub">Conteo mensual de pólizas emitidas por Contigo Marketplace.</p>
+      <div class="chart-box">
+        <canvas id="contigoMonthChart"></canvas>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>Detalle mensual</h2>
+        <p class="card-sub">Pólizas, prima neta y marca líder por mes.</p>
+        <div style="max-height:360px; overflow-y:auto;">
+          <table id="contigo-month-table">
+            <thead>
+              <tr><th>Mes</th><th class="num">Pólizas</th><th class="num">Prima neta (RD$)</th><th>Marca líder</th><th>Modelo destacado</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Top marcas del período</h2>
+        <p class="card-sub">Sumatoria de pólizas por marca.</p>
+        <table id="contigo-brand-table">
+          <thead>
+            <tr><th>Marca</th><th class="num">Pólizas</th><th class="num">Prima neta (RD$)</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 
   <footer>
@@ -236,20 +352,29 @@ const COLORS = {
   blu:         '#5B79B0',
   facilito:    '#9AA1AC'
 };
-
-const isDark = () => false;
-const gridColor = () => isDark() ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
-const tickColor = () => isDark() ? '#AEB6CC' : '#5b6472';
+const tickColor = () => '#5b6472';
+const gridColor = () => 'rgba(0,0,0,0.06)';
 
 function radiusFor(monto){
   if(monto == null) return 9;
   return Math.max(7, Math.min(22, 6 + monto/4500));
 }
 
-// ---- Timeline (swimlane) chart ----
-const laneOrder = ['Marsh Digital','Spid Digital','Contigo Marketplace','Blu Consultores','Facilito.do (sin ventas)'];
-// Eje X categórico en orden cronológico (evita depender de un adaptador de fechas externo)
-const dateOrder = ['01 Ago','13 Ago','14 Ago','20 Ago','21 Ago','24 Ago','26 Ago','27 Ago','02 Sep','08 Sep','09 Sep','14 Sep','15 Sep'];
+/* ============== TABS ============== */
+function showTab(name){
+  document.getElementById('tab-corredores').classList.toggle('active', name==='corredores');
+  document.getElementById('tab-contigo').classList.toggle('active', name==='contigo');
+  document.getElementById('btn-tab-corredores').classList.toggle('active', name==='corredores');
+  document.getElementById('btn-tab-contigo').classList.toggle('active', name==='contigo');
+  if(name==='contigo' && !window._contigoInit){
+    window._contigoInit = true;
+    renderContigo('2026');
+  }
+}
+
+/* ============== TAB 1: TIMELINE (swimlane) ============== */
+const laneOrder = ['Marsh Digital','Spid Digital','Blu Consultores','Facilito.do (sin ventas)'];
+const dateOrder = ['01 Ago','13 Ago','14 Ago','20 Ago','21 Ago','26 Ago','27 Ago','02 Sep','08 Sep','09 Sep','14 Sep','15 Sep'];
 
 const marshData = [
   {x:'14 Ago', y:'Marsh Digital', monto:83903.46, poliza:'1-2-504-0065900', cliente:'Sandra Tejeda'},
@@ -269,15 +394,9 @@ const spidData = [
   {x:'08 Sep', y:'Spid Digital', monto:null,     poliza:'1-25-29654',      cliente:'Pedro García (monto pendiente)'},
   {x:'09 Sep', y:'Spid Digital', monto:null,     poliza:'1-2-500-0392279', cliente:'José Manuel Rivas Cepeda (monto pendiente)'}
 ];
-const onlineShopData = [
-  {x:'24 Ago', y:'Contigo Marketplace', monto:32117.77, poliza:'A-PA-0000006225', cliente:'Yesenia Pichardo Valerio'},
-  {x:'27 Ago', y:'Contigo Marketplace', monto:5669.24,  poliza:'A-PL-0000001507', cliente:'Jeremy Lantigua Ortiz'},
-  {x:'15 Sep', y:'Contigo Marketplace', monto:40742.83, poliza:'A-PA-0000006404', cliente:'Penélope De León Veras'}
-];
 const bluData = [
-  {x:'09 Sep', y:'Blu Consultores', monto:24868.00, poliza:'—', cliente:'Blu Consultores'}
+  {x:'09 Sep', y:'Blu Consultores', monto:24868.00, poliza:'—', cliente:'Blu Consultores — JEEP Patriot 2011'}
 ];
-// carril visible sin ventas: punto invisible para forzar la categoría en el eje
 const facilitoData = [
   {x:'01 Ago', y:'Facilito.do (sin ventas)', monto:0, poliza:null, cliente:null, oculto:true}
 ];
@@ -287,8 +406,7 @@ function tooltipLabel(ctx){
   if(d.oculto) return 'Sin emisiones registradas en el período';
   const montoTxt = d.monto != null ? `RD$ ${d.monto.toLocaleString('es-DO',{minimumFractionDigits:2})}` : 'Prima neta N/D';
   const polizaTxt = d.poliza ? `Póliza ${d.poliza}` : '';
-  const estTxt = d.estimado ? ' (fecha estimada)' : '';
-  return [`${d.x} 2026${estTxt}`, `${d.cliente || ''}`, `${montoTxt} · ${polizaTxt}`];
+  return [`${d.x} 2026`, `${d.cliente || ''}`, `${montoTxt} · ${polizaTxt}`];
 }
 
 new Chart(document.getElementById('timelineChart'), {
@@ -298,8 +416,6 @@ new Chart(document.getElementById('timelineChart'), {
       { label:'Marsh Digital', data: marshData, backgroundColor: COLORS.marsh+'CC', borderColor: COLORS.marsh, borderWidth:1.5,
         radius: (c)=>radiusFor(c.raw.monto) },
       { label:'Spid Digital', data: spidData, backgroundColor: COLORS.spid+'CC', borderColor: COLORS.spid, borderWidth:1.5,
-        radius: (c)=>radiusFor(c.raw.monto) },
-      { label:'Contigo Marketplace', data: onlineShopData, backgroundColor: COLORS.onlineshop+'CC', borderColor: COLORS.onlineshop, borderWidth:1.5,
         radius: (c)=>radiusFor(c.raw.monto) },
       { label:'Blu Consultores', data: bluData, backgroundColor: COLORS.blu+'CC', borderColor: COLORS.blu, borderWidth:1.5,
         radius: (c)=>radiusFor(c.raw.monto) },
@@ -312,43 +428,26 @@ new Chart(document.getElementById('timelineChart'), {
     maintainAspectRatio:false,
     layout:{padding:{top:6,bottom:2}},
     scales: {
-      x: {
-        type:'category',
-        labels: dateOrder,
-        offset:true,
-        grid:{ color: gridColor() },
-        ticks:{ color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11} }
-      },
-      y: {
-        type:'category',
-        labels: laneOrder,
-        offset:true,
-        grid:{ color: gridColor() },
-        ticks:{ color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11.5, weight:'600'} }
-      }
+      x: { type:'category', labels: dateOrder, offset:true,
+        grid:{ color: gridColor() }, ticks:{ autoSkip:false, color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11} } },
+      y: { type:'category', labels: laneOrder, offset:true,
+        grid:{ color: gridColor() }, ticks:{ autoSkip:false, color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11.5, weight:'600'} } }
     },
     plugins: {
-      legend:{
-        position:'bottom',
-        labels:{ color: tickColor(), usePointStyle:true, boxWidth:8, font:{family:"'Work Sans', sans-serif", size:11.5} }
-      },
-      tooltip:{
-        callbacks:{ label: tooltipLabel },
-        titleFont:{family:"'Hanken Grotesk', sans-serif"},
-        bodyFont:{family:"'Work Sans', sans-serif"}
-      }
+      legend:{ position:'bottom', labels:{ color: tickColor(), usePointStyle:true, boxWidth:8, font:{family:"'Work Sans', sans-serif", size:11.5} } },
+      tooltip:{ callbacks:{ label: tooltipLabel }, titleFont:{family:"'Hanken Grotesk', sans-serif"}, bodyFont:{family:"'Work Sans', sans-serif"} }
     }
   }
 });
 
-// ---- Volumen mensual por broker ----
+/* ============== TAB 1: Volumen mensual ============== */
 new Chart(document.getElementById('volumeChart'), {
   type:'bar',
   data:{
-    labels:['Marsh', 'Spid', 'Contigo Mkt', 'Blu Cons.', 'Facilito.do'],
+    labels:['Marsh', 'Spid', 'Blu Cons.', 'Facilito.do'],
     datasets:[
-      { label:'Agosto', data:[4,2,2,0,0], backgroundColor: COLORS.onlineshop, borderRadius:4, maxBarThickness:26 },
-      { label:'Septiembre (parcial)', data:[4,4,1,1,0], backgroundColor: COLORS.orange, borderRadius:4, maxBarThickness:26 }
+      { label:'Agosto', data:[4,2,0,0], backgroundColor: COLORS.onlineshop, borderRadius:4, maxBarThickness:26 },
+      { label:'Septiembre (parcial)', data:[4,4,1,0], backgroundColor: COLORS.orange, borderRadius:4, maxBarThickness:26 }
     ]
   },
   options:{
@@ -358,11 +457,157 @@ new Chart(document.getElementById('volumeChart'), {
       x:{ grid:{display:false}, ticks:{ color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11} } },
       y:{ beginAtZero:true, ticks:{ stepSize:1, color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11} }, grid:{ color: gridColor() } }
     },
-    plugins:{
-      legend:{ position:'bottom', labels:{ color: tickColor(), boxWidth:10, font:{family:"'Work Sans', sans-serif", size:11.5} } }
-    }
+    plugins:{ legend:{ position:'bottom', labels:{ color: tickColor(), boxWidth:10, font:{family:"'Work Sans', sans-serif", size:11.5} } } }
   }
 });
+
+/* ============== TAB 2: CONTIGO ============== */
+const CONTIGO_DATA = [{"fecha": "2025-11-06", "poliza": "A-PA-0000003349", "marca": "HONDA", "modelo": "CIVIC", "anioVeh": 2018, "monto": 39338.0}, {"fecha": "2025-11-06", "poliza": "A-PA-0000003365", "marca": "HYUNDAI", "modelo": "ELANTRA", "anioVeh": 2020, "monto": 32886.0}, {"fecha": "2025-11-06", "poliza": "A-PA-0000003383", "marca": "ACURA", "modelo": "MDX", "anioVeh": 2020, "monto": 46339.0}, {"fecha": "2025-11-06", "poliza": "A-PA-0000003369", "marca": "JEEP", "modelo": "GRAND CHEROKEE", "anioVeh": 2015, "monto": 33893.0}, {"fecha": "2025-11-06", "poliza": "A-PL-0000000420", "marca": "VOLKSWAGEN", "modelo": "TIGUAN", "anioVeh": 2015, "monto": 6121.0}, {"fecha": "2025-11-06", "poliza": "A-PL-0000000422", "marca": "MAZDA", "modelo": "DEMIO", "anioVeh": 2010, "monto": 5647.0}, {"fecha": "2025-11-06", "poliza": "A-PL-0000000426", "marca": "HYUNDAI", "modelo": "AVANTE", "anioVeh": 2016, "monto": 5647.0}, {"fecha": "2025-11-06", "poliza": "A-PL-0000000427", "marca": "TOYOTA", "modelo": "VITZ", "anioVeh": 2016, "monto": 5647.0}, {"fecha": "2025-09-09", "poliza": "A-PA-0000003542", "marca": "GEELY", "modelo": "GX3 PRO", "anioVeh": 2026, "monto": 32322.0}, {"fecha": "2025-09-12", "poliza": "A-PA-0000003548", "marca": "CHEVROLET", "modelo": "TAHOE", "anioVeh": 2017, "monto": 38639.0}, {"fecha": "2025-10-01", "poliza": "A-PA-0000003534", "marca": "JEEP", "modelo": "GRAND CHEROKEE", "anioVeh": 2014, "monto": 31839.0}, {"fecha": "2025-09-12", "poliza": "A-PL-0000000490", "marca": "FORD", "modelo": "F150", "anioVeh": 2013, "monto": 7069.0}, {"fecha": "2025-09-15", "poliza": "A-PA-0000003573", "marca": "ACURA", "modelo": "MDX", "anioVeh": 2015, "monto": 41011.0}, {"fecha": "2025-10-01", "poliza": "A-PA0000003632", "marca": "HYUNDAI", "modelo": "AVANTE", "anioVeh": 2020, "monto": 32886.0}, {"fecha": "2025-09-30", "poliza": "A-PA-0000003660", "marca": "TOYOTA", "modelo": "RAV4", "anioVeh": 2022, "monto": 44172.0}, {"fecha": "2025-09-30", "poliza": "A-PA-0000003659", "marca": "HYUNDAI", "modelo": "TUCSON", "anioVeh": 2017, "monto": 36265.0}, {"fecha": "2025-10-06", "poliza": "A-PA-0000003697", "marca": "JETOUR", "modelo": "X70", "anioVeh": 2025, "monto": 44378.0}, {"fecha": "2025-09-30", "poliza": "A-PA-0000003674", "marca": "HYUNDAI", "modelo": "AVANTE", "anioVeh": 2013, "monto": 25068.0}, {"fecha": "2025-10-06", "poliza": "A-PA-0000003709", "marca": "HYUNDAI", "modelo": "ELANTRA", "anioVeh": 2017, "monto": 28958.0}, {"fecha": "2025-10-14", "poliza": "A-PA-0000003754", "marca": "FORD", "modelo": "ESCAPE", "anioVeh": 2018, "monto": 26775.0}, {"fecha": "2025-10-31", "poliza": "A-PA-0000003864", "marca": "TOYOTA", "modelo": "COROLLA CROSS", "anioVeh": 2022, "monto": 46173.24}, {"fecha": "2025-10-31", "poliza": "A-PA-0000003861", "marca": "CHANGAN", "modelo": "CS35", "anioVeh": 2026, "monto": 42155.32}, {"fecha": "2025-11-05", "poliza": "A-PA-0000003878", "marca": "MINI", "modelo": "COOPER", "anioVeh": 2017, "monto": 39337.56}, {"fecha": "2025-12-04", "poliza": "A-PA-0000004111", "marca": "HYUNDAI", "modelo": "VELOSTER", "anioVeh": 2019, "monto": 33371.96}, {"fecha": "2025-12-29", "poliza": "A-PA-0000004304", "marca": "TESLA", "modelo": "MODEL 3", "anioVeh": 2022, "monto": 51173.56}, {"fecha": "2026-01-19", "poliza": "A-PA-0000004461", "marca": "FORD", "modelo": "ESCAPE", "anioVeh": 2014, "monto": 17145.84}, {"fecha": "2026-02-03", "poliza": "A-PL-0000000874", "marca": "HYUNDAI", "modelo": "SANTA FE", "anioVeh": 2018, "monto": 6143.38}, {"fecha": "2026-02-13", "poliza": "A-PA-0000004657", "marca": "SUZUKI", "modelo": "ALTO", "anioVeh": 2020, "monto": 20129.95}, {"fecha": "2026-02-17", "poliza": "A-PA-0000004673", "marca": "KIA", "modelo": "SELTOS", "anioVeh": 2023, "monto": 38297.77}, {"fecha": "2026-03-23", "poliza": "A-PA-0000004863", "marca": "HONDA", "modelo": "CIVIC", "anioVeh": 2018, "monto": 40055.05}, {"fecha": "2026-03-30", "poliza": "A-PA-0000004973", "marca": "SUZUKI", "modelo": "CIAZ", "anioVeh": 2017, "monto": 25349.85}, {"fecha": "2026-03-31", "poliza": "A-PL-0000001023", "marca": "SUZUKI", "modelo": "SWIFT", "anioVeh": 2012, "monto": 5669.24}, {"fecha": "2026-04-15", "poliza": "A-PA-0000005108", "marca": "KIA", "modelo": "SELTOS", "anioVeh": 2022, "monto": 37724.83}, {"fecha": "2026-04-16", "poliza": "A-PA-0000005115", "marca": "KIA", "modelo": "SPORTAGE", "anioVeh": 2017, "monto": 34500.01}, {"fecha": "2026-05-01", "poliza": "A-PA-0000005241", "marca": "CHEVROLET", "modelo": "TAHOE", "anioVeh": 2017, "monto": 45228.53}, {"fecha": "2026-05-14", "poliza": "A-PA-0000005317", "marca": "SUZUKI", "modelo": "FRONX", "anioVeh": 2024, "monto": 31412.81}, {"fecha": "2026-06-18", "poliza": "A-PA-0000005597", "marca": "KIA", "modelo": "K5", "anioVeh": 2014, "monto": 24580.35}, {"fecha": "2026-06-30", "poliza": "A-PL-0000001298", "marca": "KIA", "modelo": "PICANTO", "anioVeh": 2015, "monto": 5669.24}, {"fecha": "2026-07-09", "poliza": "A-PL-0000001334", "marca": "KIA", "modelo": "PICANTO", "anioVeh": 2018, "monto": 5669.24}, {"fecha": "2026-07-14", "poliza": "A-PL-0000001349", "marca": "HONDA", "modelo": "CRV", "anioVeh": 2014, "monto": 6143.38}, {"fecha": "2026-07-27", "poliza": "A-PL-0000001395", "marca": "KIA", "modelo": "OPTIMA", "anioVeh": 2020, "monto": 5669.24}, {"fecha": "2026-08-24", "poliza": "A-PA-0000006225", "marca": "MITSUBISHI", "modelo": "OUTLANDER", "anioVeh": 2021, "monto": 32117.77}, {"fecha": "2026-08-27", "poliza": "A-PL-0000001507", "marca": "TOYOTA", "modelo": "PASSO", "anioVeh": 2011, "monto": 5669.24}, {"fecha": "2026-09-15", "poliza": "A-PA-0000006404", "marca": "KIA", "modelo": "SELTOS", "anioVeh": 2024, "monto": 40742.83}];
+
+const MONTH_NAMES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+let contigoChart = null;
+let currentContigoYear = '2026';
+
+function computeTopBrandModel(records){
+  if(records.length===0) return {brand:'—', brandCount:0, model:null};
+  const brandCounts = {};
+  records.forEach(r=>{ brandCounts[r.marca] = (brandCounts[r.marca]||0)+1; });
+  const maxBrandCount = Math.max(...Object.values(brandCounts));
+  const topBrands = Object.keys(brandCounts).filter(b=>brandCounts[b]===maxBrandCount);
+  const topBrandRecords = records.filter(r=>topBrands.includes(r.marca));
+  const modelCounts = {};
+  topBrandRecords.forEach(r=>{ modelCounts[r.modelo] = (modelCounts[r.modelo]||0)+1; });
+  const maxModelCount = Math.max(...Object.values(modelCounts));
+  let modelResult = null;
+  if(maxModelCount >= 2){
+    const topModels = Object.keys(modelCounts).filter(m=>modelCounts[m]===maxModelCount);
+    modelResult = {name: topModels.join(' / '), count: maxModelCount};
+  }
+  return {brand: topBrands.join(' / '), brandCount: maxBrandCount, model: modelResult};
+}
+
+function brandAgg(records){
+  const map = {};
+  records.forEach(r=>{
+    if(!map[r.marca]) map[r.marca] = {count:0, monto:0};
+    map[r.marca].count++;
+    map[r.marca].monto += r.monto;
+  });
+  return Object.keys(map).map(k=>({marca:k, count:map[k].count, monto:map[k].monto}))
+    .sort((a,b)=> b.count - a.count || b.monto - a.monto);
+}
+
+function monthlyAggForYear(year){
+  const months = Array.from({length:12}, ()=>({count:0, monto:0, records:[]}));
+  CONTIGO_DATA.forEach(r=>{
+    const d = new Date(r.fecha+'T00:00:00');
+    if(d.getFullYear()===year){
+      const m = d.getMonth();
+      months[m].count++;
+      months[m].monto += r.monto;
+      months[m].records.push(r);
+    }
+  });
+  return months.map((m,i)=>({ label: MONTH_NAMES[i], count:m.count, monto:m.monto, records:m.records, top: computeTopBrandModel(m.records) }));
+}
+
+function timelineAllMonths(){
+  const map = {};
+  CONTIGO_DATA.forEach(r=>{
+    const d = new Date(r.fecha+'T00:00:00');
+    const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    if(!map[key]) map[key] = {year:d.getFullYear(), month:d.getMonth(), count:0, monto:0, records:[]};
+    map[key].count++; map[key].monto+=r.monto; map[key].records.push(r);
+  });
+  const keys = Object.keys(map).sort();
+  return keys.map(k=>{
+    const v = map[k];
+    return { label: MONTH_NAMES[v.month]+' '+String(v.year).slice(2), year:v.year, count:v.count, monto:v.monto, records:v.records, top: computeTopBrandModel(v.records) };
+  });
+}
+
+function fmtMoney(n){ return n.toLocaleString('es-DO',{minimumFractionDigits:2}); }
+
+function renderContigo(yearSel){
+  currentContigoYear = yearSel;
+  document.getElementById('yr-2025').classList.toggle('active', yearSel==='2025');
+  document.getElementById('yr-2026').classList.toggle('active', yearSel==='2026');
+  document.getElementById('yr-todos').classList.toggle('active', yearSel==='todos');
+
+  let rows, periodRecords, chartLabels, chartData, chartColors, titleTxt, subTxt;
+
+  if(yearSel === 'todos'){
+    rows = timelineAllMonths();
+    periodRecords = CONTIGO_DATA;
+    chartLabels = rows.map(r=>r.label);
+    chartData = rows.map(r=>r.count);
+    chartColors = rows.map(r=> r.year===2025 ? COLORS.onlineshop : COLORS.orange);
+    titleTxt = 'Pólizas emitidas por mes — Histórico (Sep 2025 – Sep 2026)';
+    subTxt = 'Azul = 2025 · Naranja = 2026. Conteo mensual de pólizas emitidas por Contigo Marketplace.';
+  } else {
+    const year = parseInt(yearSel,10);
+    rows = monthlyAggForYear(year);
+    periodRecords = CONTIGO_DATA.filter(r=> new Date(r.fecha+'T00:00:00').getFullYear()===year);
+    chartLabels = rows.map(r=>r.label);
+    chartData = rows.map(r=>r.count);
+    chartColors = COLORS.onlineshop;
+    titleTxt = 'Pólizas emitidas por mes — '+yearSel;
+    subTxt = 'Conteo mensual (Ene–Dic) de pólizas emitidas por Contigo Marketplace en '+yearSel+'.';
+  }
+
+  document.getElementById('contigo-chart-title').textContent = titleTxt;
+  document.getElementById('contigo-chart-sub').textContent = subTxt;
+
+  // KPIs
+  const totalPolizas = periodRecords.length;
+  const totalMonto = periodRecords.reduce((s,r)=>s+r.monto,0);
+  const top = computeTopBrandModel(periodRecords);
+  let peakLabel = '—', peakCount = 0;
+  rows.forEach(r=>{ if(r.count > peakCount){ peakCount = r.count; } });
+  const peakLabels = rows.filter(r=>r.count===peakCount && peakCount>0).map(r=>r.label);
+  peakLabel = peakLabels.length ? peakLabels.join(' / ') : '—';
+
+  document.getElementById('contigo-kpis').innerHTML = `
+    <div class="kpi"><div class="label">Pólizas emitidas</div><div class="value">${totalPolizas}</div></div>
+    <div class="kpi"><div class="label">Prima neta acumulada</div><div class="value">RD$ ${Math.round(totalMonto).toLocaleString('es-DO')}</div></div>
+    <div class="kpi"><div class="label">Marca líder del período</div><div class="value" style="font-size:19px">${top.brand} <small>${top.brandCount} pólizas</small></div></div>
+    <div class="kpi"><div class="label">Mes de mayor volumen</div><div class="value" style="font-size:19px">${peakLabel} <small>${peakCount} pólizas</small></div></div>
+  `;
+
+  // Chart
+  if(contigoChart) contigoChart.destroy();
+  contigoChart = new Chart(document.getElementById('contigoMonthChart'), {
+    type:'bar',
+    data:{
+      labels: chartLabels,
+      datasets:[{ label:'Pólizas', data: chartData, backgroundColor: chartColors, borderRadius:4, maxBarThickness:32 }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      scales:{
+        x:{ grid:{display:false}, ticks:{ color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11} } },
+        y:{ beginAtZero:true, ticks:{ stepSize:1, color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11} }, grid:{ color: gridColor() } }
+      },
+      plugins:{ legend:{ display:false } }
+    }
+  });
+
+  // Monthly table
+  const tbody = document.querySelector('#contigo-month-table tbody');
+  tbody.innerHTML = rows.map(r=>{
+    const modelTxt = r.top.model ? `${r.top.model.name} (${r.top.model.count})` : (r.count>0 ? 'Sin repetición' : '—');
+    const brandTxt = r.count>0 ? `${r.top.brand} (${r.top.brandCount})` : '—';
+    return `<tr><td>${r.label}</td><td class="num">${r.count}</td><td class="num">${r.count>0?fmtMoney(r.monto):'—'}</td><td>${brandTxt}</td><td>${modelTxt}</td></tr>`;
+  }).join('');
+
+  // Brand table
+  const brands = brandAgg(periodRecords);
+  const btbody = document.querySelector('#contigo-brand-table tbody');
+  btbody.innerHTML = brands.map(b=>`<tr><td>${b.marca}</td><td class="num">${b.count}</td><td class="num">${fmtMoney(b.monto)}</td></tr>`).join('');
+}
+
+function setContigoYear(yearSel){ renderContigo(yearSel); }
 </script>
 </body>
 </html>
