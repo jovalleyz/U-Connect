@@ -274,18 +274,13 @@
 
     <div class="card">
       <h2>Mix de producto: marca y modelo</h2>
-      <p class="card-sub">Vehículo asegurado por broker, período Ago–Sep 2026.</p>
-      <table>
+      <p class="card-sub">Vehículo asegurado por broker y mes, período Ago–Sep 2026. Fila en negrita = total del período por broker.</p>
+      <table id="corredores-mix-table">
         <thead>
-          <tr><th>Broker</th><th>Marca</th><th>Modelo</th><th>Año</th><th class="num">Pólizas con dato</th></tr>
+          <tr><th>Broker</th><th>Mes</th><th class="num">Pólizas</th><th>Marca líder</th><th>Modelo destacado</th></tr>
         </thead>
-        <tbody>
-          <tr><td><span class="dot" style="background:#FF8F00"></span>Marsh Digital</td><td colspan="3"><span class="tag nd">N/D — reporte fuente sin columna Marca/Modelo/Año</span></td><td class="num">0 / 8</td></tr>
-          <tr><td><span class="dot" style="background:#501100"></span>Spid Digital</td><td colspan="3"><span class="tag nd">N/D — reporte fuente sin columna Marca/Modelo/Año</span></td><td class="num">0 / 6</td></tr>
-          <tr><td><span class="dot" style="background:#5B79B0"></span>Blu Consultores</td><td>JEEP</td><td>PATRIOT</td><td>2011</td><td class="num">1 / 1</td></tr>
-        </tbody>
+        <tbody></tbody>
       </table>
-      <div class="note">📌 Marsh Digital y Spid Digital no incluyen columnas de Marca/Modelo/Año en su reporte de emisiones — para completar este análisis de mix de producto en ambos canales, hay que solicitar esa extracción adicional al broker o al sistema origen.</div>
     </div>
 
   </div>
@@ -304,6 +299,10 @@
     <div class="card">
       <h2 id="contigo-chart-title">Pólizas emitidas por mes — 2026</h2>
       <p class="card-sub" id="contigo-chart-sub">Conteo mensual de pólizas emitidas por Contigo Marketplace.</p>
+      <label style="display:inline-flex; align-items:center; gap:7px; font-size:12.5px; color:var(--ink); margin-bottom:10px; cursor:pointer;">
+        <input type="checkbox" id="pct-toggle" checked onchange="togglePctLine(this.checked)">
+        Mostrar % sobre el total del período
+      </label>
       <div class="chart-box">
         <canvas id="contigoMonthChart"></canvas>
       </div>
@@ -349,6 +348,8 @@ const COLORS = {
   marsh:       '#FF8F00',
   orange:      '#FF8F00',
   spid:        '#501100',
+  guinda:      '#501100',
+  pctline:     '#8A93A3',
   blu:         '#5B79B0',
   facilito:    '#9AA1AC'
 };
@@ -358,6 +359,13 @@ const gridColor = () => 'rgba(0,0,0,0.06)';
 function radiusFor(monto){
   if(monto == null) return 9;
   return Math.max(7, Math.min(22, 6 + monto/4500));
+}
+
+function brandLabel(top, count){
+  if(!count) return '—';
+  const brands = top.brand.split(' / ');
+  if(brands.length >= 3) return `Variado (sin marca dominante, ${count} pólizas)`;
+  return `${top.brand} (${top.brandCount})`;
 }
 
 /* ============== TABS ============== */
@@ -377,25 +385,25 @@ const laneOrder = ['Marsh Digital','Spid Digital','Blu Consultores','Facilito.do
 const dateOrder = ['01 Ago','13 Ago','14 Ago','20 Ago','21 Ago','26 Ago','27 Ago','02 Sep','08 Sep','09 Sep','14 Sep','15 Sep'];
 
 const marshData = [
-  {x:'14 Ago', y:'Marsh Digital', monto:83903.46, poliza:'1-2-504-0065900', cliente:'Sandra Tejeda'},
-  {x:'20 Ago', y:'Marsh Digital', monto:6667.52,  poliza:'1-2-504-0066270', cliente:'Juan Fernando De Los Santos'},
-  {x:'26 Ago', y:'Marsh Digital', monto:6667.52,  poliza:'1-2-504-0066615', cliente:'Génesis Jiménez Suero'},
-  {x:'27 Ago', y:'Marsh Digital', monto:null,     poliza:'1-2-504-0066704', cliente:'Santan… (monto pendiente)'},
-  {x:'08 Sep', y:'Marsh Digital', monto:null,     poliza:'A-PA-0000006327', cliente:'Jaime Pe… (monto pendiente)'},
-  {x:'08 Sep', y:'Marsh Digital', monto:null,     poliza:'30-35-156695',    cliente:'Indhira… (monto pendiente)'},
-  {x:'14 Sep', y:'Marsh Digital', monto:null,     poliza:'1-2-504-0067769', cliente:'Jesús G… (monto pendiente)'},
-  {x:'15 Sep', y:'Marsh Digital', monto:43307.32, poliza:'1-2-504-0067781', cliente:'Teresa Patricia Janer Bueno'}
+  {x:'14 Ago', y:'Marsh Digital', monto:83903.46, poliza:'1-2-504-0065900', cliente:'Sandra Tejeda', marca:'LEXUS', modelo:'NX350H', anioVeh:2027},
+  {x:'20 Ago', y:'Marsh Digital', monto:6667.52,  poliza:'1-2-504-0066270', cliente:'Juan Fernando De Los Santos', marca:'HONDA', modelo:'CRV', anioVeh:2017},
+  {x:'26 Ago', y:'Marsh Digital', monto:6667.52,  poliza:'1-2-504-0066615', cliente:'Génesis Jiménez Suero', marca:'SUZUKI', modelo:'VITARA', anioVeh:2020},
+  {x:'27 Ago', y:'Marsh Digital', monto:34642.85, poliza:'1-2-504-0066704', cliente:'Cliente Marsh (27-Ago)', marca:'HYUNDAI', modelo:'TUCSON', anioVeh:2023},
+  {x:'08 Sep', y:'Marsh Digital', monto:21251.53, poliza:'A-PA-0000006327', cliente:'Cliente Marsh (08-Sep)', marca:'NISSAN', modelo:'JUKE', anioVeh:2014},
+  {x:'08 Sep', y:'Marsh Digital', monto:57195.78, poliza:'30-35-156695',    cliente:'Cliente Marsh (08-Sep)', marca:'FORD', modelo:'TERRITORY', anioVeh:2027},
+  {x:'14 Sep', y:'Marsh Digital', monto:43593.35, poliza:'1-2-504-0067769', cliente:'Cliente Marsh (14-Sep)', marca:'HYUNDAI', modelo:'ELANTRA', anioVeh:2021},
+  {x:'15 Sep', y:'Marsh Digital', monto:43307.32, poliza:'1-2-504-0067781', cliente:'Teresa Patricia Janer Bueno', marca:'JEEP', modelo:'CHEROKEE', anioVeh:2019}
 ];
 const spidData = [
-  {x:'13 Ago', y:'Spid Digital', monto:41571.08, poliza:'451862',          cliente:'Massiel Victoria Mercedes Muñoz'},
-  {x:'21 Ago', y:'Spid Digital', monto:43170.32, poliza:'456265',          cliente:'Mónica María Gil Cordero'},
-  {x:'02 Sep', y:'Spid Digital', monto:6667.52,  poliza:'1-2-500-0391945', cliente:'Isabel Quirós'},
-  {x:'02 Sep', y:'Spid Digital', monto:6667.52,  poliza:'1-2-500-0392115', cliente:'Salvador Vidal Monterrey'},
-  {x:'08 Sep', y:'Spid Digital', monto:null,     poliza:'1-25-29654',      cliente:'Pedro García (monto pendiente)'},
-  {x:'09 Sep', y:'Spid Digital', monto:null,     poliza:'1-2-500-0392279', cliente:'José Manuel Rivas Cepeda (monto pendiente)'}
+  {x:'13 Ago', y:'Spid Digital', monto:41571.08, poliza:'451862',          cliente:'Massiel Victoria Mercedes Muñoz', marca:'MERCEDES-BENZ', modelo:'GLE 350', anioVeh:2016},
+  {x:'21 Ago', y:'Spid Digital', monto:43170.32, poliza:'456265',          cliente:'Mónica María Gil Cordero', marca:'TOYOTA', modelo:'RAV4', anioVeh:2021},
+  {x:'02 Sep', y:'Spid Digital', monto:6667.52,  poliza:'1-2-500-0391945', cliente:'Isabel Quirós', marca:'JEEP', modelo:'COMPASS', anioVeh:2015},
+  {x:'02 Sep', y:'Spid Digital', monto:6667.52,  poliza:'1-2-500-0392115', cliente:'Salvador Vidal Monterrey', marca:'ASTON MARTIN', modelo:'DBX', anioVeh:2022},
+  {x:'08 Sep', y:'Spid Digital', monto:33566.32, poliza:'1-25-29654',      cliente:'Pedro García', marca:'HONDA', modelo:'CRV', anioVeh:2022},
+  {x:'09 Sep', y:'Spid Digital', monto:130228.93,poliza:'1-2-500-0392279', cliente:'José Manuel Rivas Cepeda', marca:'LEXUS', modelo:'LX 600', anioVeh:2023}
 ];
 const bluData = [
-  {x:'09 Sep', y:'Blu Consultores', monto:24868.00, poliza:'—', cliente:'Blu Consultores — JEEP Patriot 2011'}
+  {x:'09 Sep', y:'Blu Consultores', monto:24868.00, poliza:'—', cliente:'Blu Consultores', marca:'JEEP', modelo:'PATRIOT', anioVeh:2011}
 ];
 const facilitoData = [
   {x:'01 Ago', y:'Facilito.do (sin ventas)', monto:0, poliza:null, cliente:null, oculto:true}
@@ -406,7 +414,8 @@ function tooltipLabel(ctx){
   if(d.oculto) return 'Sin emisiones registradas en el período';
   const montoTxt = d.monto != null ? `RD$ ${d.monto.toLocaleString('es-DO',{minimumFractionDigits:2})}` : 'Prima neta N/D';
   const polizaTxt = d.poliza ? `Póliza ${d.poliza}` : '';
-  return [`${d.x} 2026`, `${d.cliente || ''}`, `${montoTxt} · ${polizaTxt}`];
+  const vehTxt = d.marca ? `${d.marca} ${d.modelo} (${d.anioVeh})` : '';
+  return [`${d.x} 2026`, `${d.cliente || ''}`, vehTxt, `${montoTxt} · ${polizaTxt}`];
 }
 
 new Chart(document.getElementById('timelineChart'), {
@@ -461,12 +470,51 @@ new Chart(document.getElementById('volumeChart'), {
   }
 });
 
+/* ============== TAB 1: Mix de producto por broker/mes ============== */
+function renderCorredoresMix(){
+  const brokerDefs = [
+    { name:'Marsh Digital', color: COLORS.marsh, data: marshData },
+    { name:'Spid Digital',  color: COLORS.spid,  data: spidData },
+    { name:'Blu Consultores', color: COLORS.blu, data: bluData }
+  ];
+  const months = [
+    { key:'Ago', match: x=>x.endsWith('Ago') },
+    { key:'Sep', match: x=>x.endsWith('Sep') }
+  ];
+  let rowsHtml = '';
+  brokerDefs.forEach(b=>{
+    months.forEach(m=>{
+      const recs = b.data.filter(d=>!d.oculto && m.match(d.x));
+      if(recs.length===0) return;
+      const top = computeTopBrandModel(recs);
+      const modelTxt = top.model ? `${top.model.name} (${top.model.count})` : 'Sin repetición';
+      rowsHtml += `<tr><td><span class="dot" style="background:${b.color}"></span>${b.name}</td><td>${m.key}</td><td class="num">${recs.length}</td><td>${brandLabel(top, recs.length)}</td><td>${modelTxt}</td></tr>`;
+    });
+    const allRecs = b.data.filter(d=>!d.oculto);
+    const topAll = computeTopBrandModel(allRecs);
+    const modelAllTxt = topAll.model ? `${topAll.model.name} (${topAll.model.count})` : 'Sin repetición';
+    rowsHtml += `<tr style="font-weight:700;"><td><span class="dot" style="background:${b.color}"></span>${b.name} — total período</td><td>Ago–Sep</td><td class="num">${allRecs.length}</td><td>${brandLabel(topAll, allRecs.length)}</td><td>${modelAllTxt}</td></tr>`;
+  });
+  rowsHtml += `<tr><td><span class="dot" style="background:#9AA1AC"></span>Facilito.do (Miguel Cuello)</td><td>—</td><td class="num">0</td><td>—</td><td>—</td></tr>`;
+  document.querySelector('#corredores-mix-table tbody').innerHTML = rowsHtml;
+}
+renderCorredoresMix();
+
 /* ============== TAB 2: CONTIGO ============== */
 const CONTIGO_DATA = [{"fecha": "2025-11-06", "poliza": "A-PA-0000003349", "marca": "HONDA", "modelo": "CIVIC", "anioVeh": 2018, "monto": 39338.0}, {"fecha": "2025-11-06", "poliza": "A-PA-0000003365", "marca": "HYUNDAI", "modelo": "ELANTRA", "anioVeh": 2020, "monto": 32886.0}, {"fecha": "2025-11-06", "poliza": "A-PA-0000003383", "marca": "ACURA", "modelo": "MDX", "anioVeh": 2020, "monto": 46339.0}, {"fecha": "2025-11-06", "poliza": "A-PA-0000003369", "marca": "JEEP", "modelo": "GRAND CHEROKEE", "anioVeh": 2015, "monto": 33893.0}, {"fecha": "2025-11-06", "poliza": "A-PL-0000000420", "marca": "VOLKSWAGEN", "modelo": "TIGUAN", "anioVeh": 2015, "monto": 6121.0}, {"fecha": "2025-11-06", "poliza": "A-PL-0000000422", "marca": "MAZDA", "modelo": "DEMIO", "anioVeh": 2010, "monto": 5647.0}, {"fecha": "2025-11-06", "poliza": "A-PL-0000000426", "marca": "HYUNDAI", "modelo": "AVANTE", "anioVeh": 2016, "monto": 5647.0}, {"fecha": "2025-11-06", "poliza": "A-PL-0000000427", "marca": "TOYOTA", "modelo": "VITZ", "anioVeh": 2016, "monto": 5647.0}, {"fecha": "2025-09-09", "poliza": "A-PA-0000003542", "marca": "GEELY", "modelo": "GX3 PRO", "anioVeh": 2026, "monto": 32322.0}, {"fecha": "2025-09-12", "poliza": "A-PA-0000003548", "marca": "CHEVROLET", "modelo": "TAHOE", "anioVeh": 2017, "monto": 38639.0}, {"fecha": "2025-10-01", "poliza": "A-PA-0000003534", "marca": "JEEP", "modelo": "GRAND CHEROKEE", "anioVeh": 2014, "monto": 31839.0}, {"fecha": "2025-09-12", "poliza": "A-PL-0000000490", "marca": "FORD", "modelo": "F150", "anioVeh": 2013, "monto": 7069.0}, {"fecha": "2025-09-15", "poliza": "A-PA-0000003573", "marca": "ACURA", "modelo": "MDX", "anioVeh": 2015, "monto": 41011.0}, {"fecha": "2025-10-01", "poliza": "A-PA0000003632", "marca": "HYUNDAI", "modelo": "AVANTE", "anioVeh": 2020, "monto": 32886.0}, {"fecha": "2025-09-30", "poliza": "A-PA-0000003660", "marca": "TOYOTA", "modelo": "RAV4", "anioVeh": 2022, "monto": 44172.0}, {"fecha": "2025-09-30", "poliza": "A-PA-0000003659", "marca": "HYUNDAI", "modelo": "TUCSON", "anioVeh": 2017, "monto": 36265.0}, {"fecha": "2025-10-06", "poliza": "A-PA-0000003697", "marca": "JETOUR", "modelo": "X70", "anioVeh": 2025, "monto": 44378.0}, {"fecha": "2025-09-30", "poliza": "A-PA-0000003674", "marca": "HYUNDAI", "modelo": "AVANTE", "anioVeh": 2013, "monto": 25068.0}, {"fecha": "2025-10-06", "poliza": "A-PA-0000003709", "marca": "HYUNDAI", "modelo": "ELANTRA", "anioVeh": 2017, "monto": 28958.0}, {"fecha": "2025-10-14", "poliza": "A-PA-0000003754", "marca": "FORD", "modelo": "ESCAPE", "anioVeh": 2018, "monto": 26775.0}, {"fecha": "2025-10-31", "poliza": "A-PA-0000003864", "marca": "TOYOTA", "modelo": "COROLLA CROSS", "anioVeh": 2022, "monto": 46173.24}, {"fecha": "2025-10-31", "poliza": "A-PA-0000003861", "marca": "CHANGAN", "modelo": "CS35", "anioVeh": 2026, "monto": 42155.32}, {"fecha": "2025-11-05", "poliza": "A-PA-0000003878", "marca": "MINI", "modelo": "COOPER", "anioVeh": 2017, "monto": 39337.56}, {"fecha": "2025-12-04", "poliza": "A-PA-0000004111", "marca": "HYUNDAI", "modelo": "VELOSTER", "anioVeh": 2019, "monto": 33371.96}, {"fecha": "2025-12-29", "poliza": "A-PA-0000004304", "marca": "TESLA", "modelo": "MODEL 3", "anioVeh": 2022, "monto": 51173.56}, {"fecha": "2026-01-19", "poliza": "A-PA-0000004461", "marca": "FORD", "modelo": "ESCAPE", "anioVeh": 2014, "monto": 17145.84}, {"fecha": "2026-02-03", "poliza": "A-PL-0000000874", "marca": "HYUNDAI", "modelo": "SANTA FE", "anioVeh": 2018, "monto": 6143.38}, {"fecha": "2026-02-13", "poliza": "A-PA-0000004657", "marca": "SUZUKI", "modelo": "ALTO", "anioVeh": 2020, "monto": 20129.95}, {"fecha": "2026-02-17", "poliza": "A-PA-0000004673", "marca": "KIA", "modelo": "SELTOS", "anioVeh": 2023, "monto": 38297.77}, {"fecha": "2026-03-23", "poliza": "A-PA-0000004863", "marca": "HONDA", "modelo": "CIVIC", "anioVeh": 2018, "monto": 40055.05}, {"fecha": "2026-03-30", "poliza": "A-PA-0000004973", "marca": "SUZUKI", "modelo": "CIAZ", "anioVeh": 2017, "monto": 25349.85}, {"fecha": "2026-03-31", "poliza": "A-PL-0000001023", "marca": "SUZUKI", "modelo": "SWIFT", "anioVeh": 2012, "monto": 5669.24}, {"fecha": "2026-04-15", "poliza": "A-PA-0000005108", "marca": "KIA", "modelo": "SELTOS", "anioVeh": 2022, "monto": 37724.83}, {"fecha": "2026-04-16", "poliza": "A-PA-0000005115", "marca": "KIA", "modelo": "SPORTAGE", "anioVeh": 2017, "monto": 34500.01}, {"fecha": "2026-05-01", "poliza": "A-PA-0000005241", "marca": "CHEVROLET", "modelo": "TAHOE", "anioVeh": 2017, "monto": 45228.53}, {"fecha": "2026-05-14", "poliza": "A-PA-0000005317", "marca": "SUZUKI", "modelo": "FRONX", "anioVeh": 2024, "monto": 31412.81}, {"fecha": "2026-06-18", "poliza": "A-PA-0000005597", "marca": "KIA", "modelo": "K5", "anioVeh": 2014, "monto": 24580.35}, {"fecha": "2026-06-30", "poliza": "A-PL-0000001298", "marca": "KIA", "modelo": "PICANTO", "anioVeh": 2015, "monto": 5669.24}, {"fecha": "2026-07-09", "poliza": "A-PL-0000001334", "marca": "KIA", "modelo": "PICANTO", "anioVeh": 2018, "monto": 5669.24}, {"fecha": "2026-07-14", "poliza": "A-PL-0000001349", "marca": "HONDA", "modelo": "CRV", "anioVeh": 2014, "monto": 6143.38}, {"fecha": "2026-07-27", "poliza": "A-PL-0000001395", "marca": "KIA", "modelo": "OPTIMA", "anioVeh": 2020, "monto": 5669.24}, {"fecha": "2026-08-24", "poliza": "A-PA-0000006225", "marca": "MITSUBISHI", "modelo": "OUTLANDER", "anioVeh": 2021, "monto": 32117.77}, {"fecha": "2026-08-27", "poliza": "A-PL-0000001507", "marca": "TOYOTA", "modelo": "PASSO", "anioVeh": 2011, "monto": 5669.24}, {"fecha": "2026-09-15", "poliza": "A-PA-0000006404", "marca": "KIA", "modelo": "SELTOS", "anioVeh": 2024, "monto": 40742.83}];
 
 const MONTH_NAMES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 let contigoChart = null;
 let currentContigoYear = '2026';
+let contigoShowPct = true;
+
+function togglePctLine(checked){
+  contigoShowPct = checked;
+  if(contigoChart){
+    contigoChart.setDatasetVisibility(1, checked);
+    contigoChart.update();
+  }
+}
 
 function computeTopBrandModel(records){
   if(records.length===0) return {brand:'—', brandCount:0, model:null};
@@ -570,26 +618,38 @@ function renderContigo(yearSel){
   document.getElementById('contigo-kpis').innerHTML = `
     <div class="kpi"><div class="label">Pólizas emitidas</div><div class="value">${totalPolizas}</div></div>
     <div class="kpi"><div class="label">Prima neta acumulada</div><div class="value">RD$ ${Math.round(totalMonto).toLocaleString('es-DO')}</div></div>
-    <div class="kpi"><div class="label">Marca líder del período</div><div class="value" style="font-size:19px">${top.brand} <small>${top.brandCount} pólizas</small></div></div>
+    <div class="kpi"><div class="label">Marca líder del período</div><div class="value" style="font-size:19px">${top.brand.split(' / ').length>=3 ? 'Variado' : top.brand} <small>${top.brand.split(' / ').length>=3 ? 'sin marca dominante' : top.brandCount+' pólizas'}</small></div></div>
     <div class="kpi"><div class="label">Mes de mayor volumen</div><div class="value" style="font-size:19px">${peakLabel} <small>${peakCount} pólizas</small></div></div>
   `;
 
   // Chart
+  const totalForPct = periodRecords.length;
+  const pctData = chartData.map(c => totalForPct>0 ? (c/totalForPct*100) : 0);
+
   if(contigoChart) contigoChart.destroy();
   contigoChart = new Chart(document.getElementById('contigoMonthChart'), {
-    type:'bar',
     data:{
       labels: chartLabels,
-      datasets:[{ label:'Pólizas', data: chartData, backgroundColor: chartColors, borderRadius:4, maxBarThickness:32 }]
+      datasets:[
+        { type:'bar', label:'Pólizas', data: chartData, backgroundColor: chartColors, borderRadius:4, maxBarThickness:32, order:2 },
+        { type:'line', label:'% sobre el total', data: pctData, yAxisID:'y1', borderColor: COLORS.pctline, backgroundColor: COLORS.pctline,
+          borderWidth:2, pointRadius:3, pointBackgroundColor: COLORS.pctline, tension:0.25, hidden: !contigoShowPct, order:1 }
+      ]
     },
     options:{
       responsive:true,
       maintainAspectRatio:false,
       scales:{
         x:{ grid:{display:false}, ticks:{ color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11} } },
-        y:{ beginAtZero:true, ticks:{ stepSize:1, color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11} }, grid:{ color: gridColor() } }
+        y:{ beginAtZero:true, ticks:{ stepSize:1, color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11} }, grid:{ color: gridColor() }, title:{display:true, text:'Pólizas', color:tickColor(), font:{family:"'Work Sans', sans-serif", size:11}} },
+        y1:{ beginAtZero:true, position:'right', grid:{drawOnChartArea:false},
+          ticks:{ color: COLORS.pctline, font:{family:"'Work Sans', sans-serif", size:11}, callback:(v)=>v+'%' },
+          title:{display:true, text:'% del total', color:COLORS.pctline, font:{family:"'Work Sans', sans-serif", size:11}} }
       },
-      plugins:{ legend:{ display:false } }
+      plugins:{
+        legend:{ display:true, position:'bottom', labels:{ color: tickColor(), boxWidth:10, font:{family:"'Work Sans', sans-serif", size:11.5} } },
+        tooltip:{ callbacks:{ label:(ctx)=> ctx.dataset.type==='line' ? `% del total: ${ctx.parsed.y.toFixed(1)}%` : `Pólizas: ${ctx.parsed.y}` } }
+      }
     }
   });
 
@@ -597,7 +657,7 @@ function renderContigo(yearSel){
   const tbody = document.querySelector('#contigo-month-table tbody');
   tbody.innerHTML = rows.map(r=>{
     const modelTxt = r.top.model ? `${r.top.model.name} (${r.top.model.count})` : (r.count>0 ? 'Sin repetición' : '—');
-    const brandTxt = r.count>0 ? `${r.top.brand} (${r.top.brandCount})` : '—';
+    const brandTxt = brandLabel(r.top, r.count);
     return `<tr><td>${r.label}</td><td class="num">${r.count}</td><td class="num">${r.count>0?fmtMoney(r.monto):'—'}</td><td>${brandTxt}</td><td>${modelTxt}</td></tr>`;
   }).join('');
 
