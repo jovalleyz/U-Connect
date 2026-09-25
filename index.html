@@ -324,14 +324,16 @@
       </div>
 
       <div class="card">
-        <h2>Top 5 marcas del período</h2>
-        <p class="card-sub">Sumatoria de pólizas por marca y % sobre el total del período.</p>
+        <h2>Top marcas del período</h2>
+        <p class="card-sub">Top 5 resaltado en naranja UNIT · % sobre el total del período · scroll para ver el resto.</p>
+        <div style="max-height:280px; overflow-y:auto;">
         <table id="contigo-brand-table">
           <thead>
             <tr><th>Marca</th><th class="num">Pólizas</th><th class="num">% del total</th><th class="num">Prima neta (RD$)</th></tr>
           </thead>
           <tbody></tbody>
         </table>
+        </div>
       </div>
     </div>
 
@@ -369,14 +371,16 @@
       </div>
 
       <div class="card">
-        <h2>Top 5 marcas del período</h2>
-        <p class="card-sub">Sumatoria de pólizas por marca y % sobre el total del período, todos los canales.</p>
+        <h2>Top marcas del período</h2>
+        <p class="card-sub">Top 5 resaltado en naranja UNIT · % sobre el total del período, todos los canales · scroll para ver el resto.</p>
+        <div style="max-height:280px; overflow-y:auto;">
         <table id="consolidado-brand-table">
           <thead>
             <tr><th>Marca</th><th class="num">Pólizas</th><th class="num">% del total</th><th class="num">Prima neta (RD$)</th></tr>
           </thead>
           <tbody></tbody>
         </table>
+        </div>
       </div>
     </div>
 
@@ -713,10 +717,13 @@ function renderContigo(yearSel){
     return `<tr><td>${r.label}</td><td class="num">${r.count}</td><td class="num">${r.count>0?fmtMoney(r.monto):'—'}</td><td>${brandTxt}</td><td>${modelTxt}</td></tr>`;
   }).join('');
 
-  // Brand table (Top 5 con % del total)
-  const brands = brandAgg(periodRecords).slice(0,5);
+  // Brand table (todas, top 5 resaltado en naranja UNIT)
+  const brands = brandAgg(periodRecords);
   const btbody = document.querySelector('#contigo-brand-table tbody');
-  btbody.innerHTML = brands.map(b=>`<tr><td>${b.marca}</td><td class="num">${b.count}</td><td class="num">${totalPolizas>0 ? (b.count/totalPolizas*100).toFixed(1) : '0.0'}%</td><td class="num">${fmtMoney(b.monto)}</td></tr>`).join('');
+  btbody.innerHTML = brands.map((b,i)=>{
+    const style = i<5 ? ' style="background:rgba(255,143,0,0.14); font-weight:600;"' : '';
+    return `<tr${style}><td>${b.marca}</td><td class="num">${b.count}</td><td class="num">${totalPolizas>0 ? (b.count/totalPolizas*100).toFixed(1) : '0.0'}%</td><td class="num">${fmtMoney(b.monto)}</td></tr>`;
+  }).join('');
 }
 
 function setContigoYear(yearSel){ renderContigo(yearSel); }
@@ -845,11 +852,12 @@ function renderConsolidado(yearSel){
     `<tr><td><span class="dot" style="background:${CANAL_COLOR[c]}"></span>${c}</td><td class="num">${byCanal[c].count}</td><td class="num">${byCanal[c].count>0?fmtMoney(byCanal[c].monto):'—'}</td></tr>`
   ).join('') + `<tr style="font-weight:700;"><td>Total</td><td class="num">${totalPolizas}</td><td class="num">${fmtMoney(totalMonto)}</td></tr>`;
 
-  // Top marcas table (Top 5 con % del total)
-  const brands = brandAgg(periodRecords).slice(0,5);
-  document.querySelector('#consolidado-brand-table tbody').innerHTML = brands.map(b=>
-    `<tr><td>${b.marca}</td><td class="num">${b.count}</td><td class="num">${totalPolizas>0 ? (b.count/totalPolizas*100).toFixed(1) : '0.0'}%</td><td class="num">${fmtMoney(b.monto)}</td></tr>`
-  ).join('');
+  // Top marcas table (todas, top 5 resaltado en naranja UNIT)
+  const brands = brandAgg(periodRecords);
+  document.querySelector('#consolidado-brand-table tbody').innerHTML = brands.map((b,i)=>{
+    const style = i<5 ? ' style="background:rgba(255,143,0,0.14); font-weight:600;"' : '';
+    return `<tr${style}><td>${b.marca}</td><td class="num">${b.count}</td><td class="num">${totalPolizas>0 ? (b.count/totalPolizas*100).toFixed(1) : '0.0'}%</td><td class="num">${fmtMoney(b.monto)}</td></tr>`;
+  }).join('');
 }
 
 function setConsolidadoYear(yearSel){ renderConsolidado(yearSel); }
