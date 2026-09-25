@@ -308,6 +308,14 @@
       </div>
     </div>
 
+    <div class="card">
+      <h2>Comparativo interanual — pólizas por mes</h2>
+      <p class="card-sub">2025 vs. 2026, mes contra mes, para ver estacionalidad y crecimiento real.</p>
+      <div class="chart-box">
+        <canvas id="contigoYoYChart"></canvas>
+      </div>
+    </div>
+
     <div class="grid-2">
       <div class="card">
         <h2>Detalle mensual</h2>
@@ -435,6 +443,7 @@ function showTab(name){
   if(name==='contigo' && !window._contigoInit){
     window._contigoInit = true;
     renderContigo('2026');
+    renderContigoYoY();
   }
   if(name==='consolidado' && !window._consolidadoInit){
     window._consolidadoInit = true;
@@ -778,6 +787,40 @@ function renderContigo(yearSel){
 }
 
 function setContigoYear(yearSel){ renderContigo(yearSel); }
+
+function renderContigoYoY(){
+  const years = [...new Set(CONTIGO_DATA.map(d=> new Date(d.fecha+'T00:00:00').getFullYear()))].sort();
+  const palette = [COLORS.onlineshop, COLORS.orange, COLORS.guinda, COLORS.blu];
+  const datasets = years.map((y,i)=>{
+    const rows = monthlyAggForYear(y);
+    return {
+      label: String(y),
+      data: rows.map(r=>r.count),
+      borderColor: palette[i % palette.length],
+      backgroundColor: palette[i % palette.length],
+      tension: 0.25,
+      pointRadius: 3,
+      pointBackgroundColor: palette[i % palette.length],
+      borderWidth: 2
+    };
+  });
+  new Chart(document.getElementById('contigoYoYChart'), {
+    type:'line',
+    data:{ labels: MONTH_NAMES, datasets },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      scales:{
+        x:{ grid:{display:false}, ticks:{ color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11} } },
+        y:{ beginAtZero:true, ticks:{ stepSize:1, color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11} }, grid:{ color: gridColor() } }
+      },
+      plugins:{
+        legend:{ position:'bottom', labels:{ color: tickColor(), boxWidth:10, font:{family:"'Work Sans', sans-serif", size:11.5} } },
+        tooltip:{ callbacks:{ label:(ctx)=> `${ctx.dataset.label}: ${ctx.parsed.y} pólizas` } }
+      }
+    }
+  });
+}
 
 /* ============== TAB 3: CONSOLIDADO ============== */
 function buildConsolidatedRecords(){
