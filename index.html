@@ -1,3 +1,4 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -25,6 +26,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700;800&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
   :root{
     --navy:#002169;
@@ -219,7 +221,7 @@
   <!-- ======================= TAB 1: CORREDORES ======================= -->
   <div class="tabpanel active" id="tab-corredores">
 
-    <div class="period-badge" id="corredores-period" style="display:inline-block; margin-bottom:16px;">Marzo – Septiembre 2026</div>
+    <div class="period-badge" id="corredores-period" style="display:inline-block; margin-bottom:16px;">Marzo – Octubre 2026</div>
 
     <div class="kpis" id="corredores-kpis"></div>
 
@@ -234,7 +236,7 @@
     <div class="grid-2">
       <div class="card">
         <h2>Pólizas por broker y mes</h2>
-        <p class="card-sub">Conteo de emisiones, marzo–septiembre 2026.</p>
+        <p class="card-sub">Conteo de emisiones, marzo–octubre 2026.</p>
         <div class="chart-box">
           <canvas id="volumeChart"></canvas>
         </div>
@@ -254,7 +256,7 @@
 
     <div class="card">
       <h2>Mix de producto: marca, modelo y año</h2>
-      <p class="card-sub">Vehículo asegurado por broker y mes, marzo–septiembre 2026. Fila en negrita = total del período por broker.</p>
+      <p class="card-sub">Vehículo asegurado por broker y mes, marzo–octubre 2026. Fila en negrita = total del período por broker.</p>
       <table id="corredores-mix-table">
         <thead>
           <tr><th>Broker</th><th>Mes</th><th class="num">Pólizas</th><th>Marca líder</th><th>Modelo destacado (año)</th></tr>
@@ -471,7 +473,7 @@ const marshData = [
 ];
 const spidData = [
   {fecha:'2026-07-30', poliza:'A-PL-0000001432', marca:'CITROEN',        modelo:'C4',      anioVeh:2023, monto:5669.24},
-  {fecha:'2026-08-13', poliza:'451862',          marca:'MERCEDES-BENZ',  modelo:'GLE 350', anioVeh:2016, monto:41571.08}
+  {fecha:'2026-10-09', poliza:'A-PL-0000001604', marca:'KIA',            modelo:'SELTOS',  anioVeh:2023, monto:6143.38}
 ];
 
 const laneOrder = ['Marsh Digital','Spid Digital'];
@@ -513,11 +515,11 @@ new Chart(document.getElementById('timelineChart'), {
   }
 });
 
-/* ============== TAB 1: Volumen mensual (Mar–Sep 2026) ============== */
-const MESES_CORREDORES = ['Mar','Abr','May','Jun','Jul','Ago','Sep'];
+/* ============== TAB 1: Volumen mensual (Mar–Oct 2026) ============== */
+const MESES_CORREDORES = ['Mar','Abr','May','Jun','Jul','Ago','Sep','Oct'];
 function monthIndexCorredores(iso){ return new Date(iso+'T00:00:00').getMonth() - 2; } // Mar=0
-const marshByMonth = Array(7).fill(0);
-const spidByMonth = Array(7).fill(0);
+const marshByMonth = Array(MESES_CORREDORES.length).fill(0);
+const spidByMonth = Array(MESES_CORREDORES.length).fill(0);
 marshData.forEach(d=>{ marshByMonth[monthIndexCorredores(d.fecha)]++; });
 spidData.forEach(d=>{ spidByMonth[monthIndexCorredores(d.fecha)]++; });
 
@@ -583,7 +585,7 @@ function renderCorredores(){
     });
     const tAll = computeTopBrandModel(b.data);
     const mAllTxt = modelText(tAll) || 'Sin repetición';
-    rowsHtml += `<tr style="font-weight:700;"><td><span class="dot" style="background:${b.color}"></span>${b.name} — total período</td><td>Mar–Sep</td><td class="num">${b.data.length}</td><td>${brandLabel(tAll, b.data.length)}</td><td>${mAllTxt}</td></tr>`;
+    rowsHtml += `<tr style="font-weight:700;"><td><span class="dot" style="background:${b.color}"></span>${b.name} — total período</td><td>Mar–Oct</td><td class="num">${b.data.length}</td><td>${brandLabel(tAll, b.data.length)}</td><td>${mAllTxt}</td></tr>`;
   });
   document.querySelector('#corredores-mix-table tbody').innerHTML = rowsHtml;
 }
@@ -610,7 +612,7 @@ function renderAliados(){
 renderAliados();
 
 /* ============== TAB 2: CONTIGO ============== */
-const CONTIGO_DATA = [{"fecha": "2025-11-06", "poliza": "A-PA-0000003349", "marca": "HONDA", "modelo": "CIVIC", "anioVeh": 2018, "monto": 39338.0}, {"fecha": "2025-11-06", "poliza": "A-PA-0000003365", "marca": "HYUNDAI", "modelo": "ELANTRA", "anioVeh": 2020, "monto": 32886.0}, {"fecha": "2025-11-06", "poliza": "A-PA-0000003383", "marca": "ACURA", "modelo": "MDX", "anioVeh": 2020, "monto": 46339.0}, {"fecha": "2025-11-06", "poliza": "A-PA-0000003369", "marca": "JEEP", "modelo": "GRAND CHEROKEE", "anioVeh": 2015, "monto": 33893.0}, {"fecha": "2025-11-06", "poliza": "A-PL-0000000420", "marca": "VOLKSWAGEN", "modelo": "TIGUAN", "anioVeh": 2015, "monto": 6121.0}, {"fecha": "2025-11-06", "poliza": "A-PL-0000000422", "marca": "MAZDA", "modelo": "DEMIO", "anioVeh": 2010, "monto": 5647.0}, {"fecha": "2025-11-06", "poliza": "A-PL-0000000426", "marca": "HYUNDAI", "modelo": "AVANTE", "anioVeh": 2016, "monto": 5647.0}, {"fecha": "2025-11-06", "poliza": "A-PL-0000000427", "marca": "TOYOTA", "modelo": "VITZ", "anioVeh": 2016, "monto": 5647.0}, {"fecha": "2025-09-09", "poliza": "A-PA-0000003542", "marca": "GEELY", "modelo": "GX3 PRO", "anioVeh": 2026, "monto": 32322.0}, {"fecha": "2025-09-12", "poliza": "A-PA-0000003548", "marca": "CHEVROLET", "modelo": "TAHOE", "anioVeh": 2017, "monto": 38639.0}, {"fecha": "2025-10-01", "poliza": "A-PA-0000003534", "marca": "JEEP", "modelo": "GRAND CHEROKEE", "anioVeh": 2014, "monto": 31839.0}, {"fecha": "2025-09-12", "poliza": "A-PL-0000000490", "marca": "FORD", "modelo": "F150", "anioVeh": 2013, "monto": 7069.0}, {"fecha": "2025-09-15", "poliza": "A-PA-0000003573", "marca": "ACURA", "modelo": "MDX", "anioVeh": 2015, "monto": 41011.0}, {"fecha": "2025-10-01", "poliza": "A-PA0000003632", "marca": "HYUNDAI", "modelo": "AVANTE", "anioVeh": 2020, "monto": 32886.0}, {"fecha": "2025-09-30", "poliza": "A-PA-0000003660", "marca": "TOYOTA", "modelo": "RAV4", "anioVeh": 2022, "monto": 44172.0}, {"fecha": "2025-09-30", "poliza": "A-PA-0000003659", "marca": "HYUNDAI", "modelo": "TUCSON", "anioVeh": 2017, "monto": 36265.0}, {"fecha": "2025-10-06", "poliza": "A-PA-0000003697", "marca": "JETOUR", "modelo": "X70", "anioVeh": 2025, "monto": 44378.0}, {"fecha": "2025-09-30", "poliza": "A-PA-0000003674", "marca": "HYUNDAI", "modelo": "AVANTE", "anioVeh": 2013, "monto": 25068.0}, {"fecha": "2025-10-06", "poliza": "A-PA-0000003709", "marca": "HYUNDAI", "modelo": "ELANTRA", "anioVeh": 2017, "monto": 28958.0}, {"fecha": "2025-10-14", "poliza": "A-PA-0000003754", "marca": "FORD", "modelo": "ESCAPE", "anioVeh": 2018, "monto": 26775.0}, {"fecha": "2025-10-31", "poliza": "A-PA-0000003864", "marca": "TOYOTA", "modelo": "COROLLA CROSS", "anioVeh": 2022, "monto": 46173.24}, {"fecha": "2025-10-31", "poliza": "A-PA-0000003861", "marca": "CHANGAN", "modelo": "CS35", "anioVeh": 2026, "monto": 42155.32}, {"fecha": "2025-11-05", "poliza": "A-PA-0000003878", "marca": "MINI", "modelo": "COOPER", "anioVeh": 2017, "monto": 39337.56}, {"fecha": "2025-12-04", "poliza": "A-PA-0000004111", "marca": "HYUNDAI", "modelo": "VELOSTER", "anioVeh": 2019, "monto": 33371.96}, {"fecha": "2025-12-29", "poliza": "A-PA-0000004304", "marca": "TESLA", "modelo": "MODEL 3", "anioVeh": 2022, "monto": 51173.56}, {"fecha": "2026-01-19", "poliza": "A-PA-0000004461", "marca": "FORD", "modelo": "ESCAPE", "anioVeh": 2014, "monto": 17145.84}, {"fecha": "2026-02-03", "poliza": "A-PL-0000000874", "marca": "HYUNDAI", "modelo": "SANTA FE", "anioVeh": 2018, "monto": 6143.38}, {"fecha": "2026-02-13", "poliza": "A-PA-0000004657", "marca": "SUZUKI", "modelo": "ALTO", "anioVeh": 2020, "monto": 20129.95}, {"fecha": "2026-02-17", "poliza": "A-PA-0000004673", "marca": "KIA", "modelo": "SELTOS", "anioVeh": 2023, "monto": 38297.77}, {"fecha": "2026-03-23", "poliza": "A-PA-0000004863", "marca": "HONDA", "modelo": "CIVIC", "anioVeh": 2018, "monto": 40055.05}, {"fecha": "2026-03-30", "poliza": "A-PA-0000004973", "marca": "SUZUKI", "modelo": "CIAZ", "anioVeh": 2017, "monto": 25349.85}, {"fecha": "2026-03-31", "poliza": "A-PL-0000001023", "marca": "SUZUKI", "modelo": "SWIFT", "anioVeh": 2012, "monto": 5669.24}, {"fecha": "2026-04-15", "poliza": "A-PA-0000005108", "marca": "KIA", "modelo": "SELTOS", "anioVeh": 2022, "monto": 37724.83}, {"fecha": "2026-04-16", "poliza": "A-PA-0000005115", "marca": "KIA", "modelo": "SPORTAGE", "anioVeh": 2017, "monto": 34500.01}, {"fecha": "2026-05-01", "poliza": "A-PA-0000005241", "marca": "CHEVROLET", "modelo": "TAHOE", "anioVeh": 2017, "monto": 45228.53}, {"fecha": "2026-05-14", "poliza": "A-PA-0000005317", "marca": "SUZUKI", "modelo": "FRONX", "anioVeh": 2024, "monto": 31412.81}, {"fecha": "2026-06-18", "poliza": "A-PA-0000005597", "marca": "KIA", "modelo": "K5", "anioVeh": 2014, "monto": 24580.35}, {"fecha": "2026-06-30", "poliza": "A-PL-0000001298", "marca": "KIA", "modelo": "PICANTO", "anioVeh": 2015, "monto": 5669.24}, {"fecha": "2026-07-09", "poliza": "A-PL-0000001334", "marca": "KIA", "modelo": "PICANTO", "anioVeh": 2018, "monto": 5669.24}, {"fecha": "2026-07-14", "poliza": "A-PL-0000001349", "marca": "HONDA", "modelo": "CRV", "anioVeh": 2014, "monto": 6143.38}, {"fecha": "2026-07-27", "poliza": "A-PL-0000001395", "marca": "KIA", "modelo": "OPTIMA", "anioVeh": 2020, "monto": 5669.24}, {"fecha": "2026-08-24", "poliza": "A-PA-0000006225", "marca": "MITSUBISHI", "modelo": "OUTLANDER", "anioVeh": 2021, "monto": 32117.77}, {"fecha": "2026-08-27", "poliza": "A-PL-0000001507", "marca": "TOYOTA", "modelo": "PASSO", "anioVeh": 2011, "monto": 5669.24}, {"fecha": "2026-09-15", "poliza": "A-PA-0000006404", "marca": "KIA", "modelo": "SELTOS", "anioVeh": 2024, "monto": 40742.83}];
+const CONTIGO_DATA = [{"fecha": "2025-11-06", "poliza": "A-PA-0000003349", "marca": "HONDA", "modelo": "CIVIC", "anioVeh": 2018, "monto": 39338.0}, {"fecha": "2025-11-06", "poliza": "A-PA-0000003365", "marca": "HYUNDAI", "modelo": "ELANTRA", "anioVeh": 2020, "monto": 32886.0}, {"fecha": "2025-11-06", "poliza": "A-PA-0000003383", "marca": "ACURA", "modelo": "MDX", "anioVeh": 2020, "monto": 46339.0}, {"fecha": "2025-11-06", "poliza": "A-PA-0000003369", "marca": "JEEP", "modelo": "GRAND CHEROKEE", "anioVeh": 2015, "monto": 33893.0}, {"fecha": "2025-11-06", "poliza": "A-PL-0000000420", "marca": "VOLKSWAGEN", "modelo": "TIGUAN", "anioVeh": 2015, "monto": 6121.0}, {"fecha": "2025-11-06", "poliza": "A-PL-0000000422", "marca": "MAZDA", "modelo": "DEMIO", "anioVeh": 2010, "monto": 5647.0}, {"fecha": "2025-11-06", "poliza": "A-PL-0000000426", "marca": "HYUNDAI", "modelo": "AVANTE", "anioVeh": 2016, "monto": 5647.0}, {"fecha": "2025-11-06", "poliza": "A-PL-0000000427", "marca": "TOYOTA", "modelo": "VITZ", "anioVeh": 2016, "monto": 5647.0}, {"fecha": "2025-09-09", "poliza": "A-PA-0000003542", "marca": "GEELY", "modelo": "GX3 PRO", "anioVeh": 2026, "monto": 32322.0}, {"fecha": "2025-09-12", "poliza": "A-PA-0000003548", "marca": "CHEVROLET", "modelo": "TAHOE", "anioVeh": 2017, "monto": 38639.0}, {"fecha": "2025-10-01", "poliza": "A-PA-0000003534", "marca": "JEEP", "modelo": "GRAND CHEROKEE", "anioVeh": 2014, "monto": 31839.0}, {"fecha": "2025-09-12", "poliza": "A-PL-0000000490", "marca": "FORD", "modelo": "F150", "anioVeh": 2013, "monto": 7069.0}, {"fecha": "2025-09-15", "poliza": "A-PA-0000003573", "marca": "ACURA", "modelo": "MDX", "anioVeh": 2015, "monto": 41011.0}, {"fecha": "2025-10-01", "poliza": "A-PA0000003632", "marca": "HYUNDAI", "modelo": "AVANTE", "anioVeh": 2020, "monto": 32886.0}, {"fecha": "2025-09-30", "poliza": "A-PA-0000003660", "marca": "TOYOTA", "modelo": "RAV4", "anioVeh": 2022, "monto": 44172.0}, {"fecha": "2025-09-30", "poliza": "A-PA-0000003659", "marca": "HYUNDAI", "modelo": "TUCSON", "anioVeh": 2017, "monto": 36265.0}, {"fecha": "2025-10-06", "poliza": "A-PA-0000003697", "marca": "JETOUR", "modelo": "X70", "anioVeh": 2025, "monto": 44378.0}, {"fecha": "2025-09-30", "poliza": "A-PA-0000003674", "marca": "HYUNDAI", "modelo": "AVANTE", "anioVeh": 2013, "monto": 25068.0}, {"fecha": "2025-10-06", "poliza": "A-PA-0000003709", "marca": "HYUNDAI", "modelo": "ELANTRA", "anioVeh": 2017, "monto": 28958.0}, {"fecha": "2025-10-14", "poliza": "A-PA-0000003754", "marca": "FORD", "modelo": "ESCAPE", "anioVeh": 2018, "monto": 26775.0}, {"fecha": "2025-10-31", "poliza": "A-PA-0000003864", "marca": "TOYOTA", "modelo": "COROLLA CROSS", "anioVeh": 2022, "monto": 46173.24}, {"fecha": "2025-10-31", "poliza": "A-PA-0000003861", "marca": "CHANGAN", "modelo": "CS35", "anioVeh": 2026, "monto": 42155.32}, {"fecha": "2025-11-05", "poliza": "A-PA-0000003878", "marca": "MINI", "modelo": "COOPER", "anioVeh": 2017, "monto": 39337.56}, {"fecha": "2025-12-04", "poliza": "A-PA-0000004111", "marca": "HYUNDAI", "modelo": "VELOSTER", "anioVeh": 2019, "monto": 33371.96}, {"fecha": "2025-12-29", "poliza": "A-PA-0000004304", "marca": "TESLA", "modelo": "MODEL 3", "anioVeh": 2022, "monto": 51173.56}, {"fecha": "2026-01-19", "poliza": "A-PA-0000004461", "marca": "FORD", "modelo": "ESCAPE", "anioVeh": 2014, "monto": 17145.84}, {"fecha": "2026-02-03", "poliza": "A-PL-0000000874", "marca": "HYUNDAI", "modelo": "SANTA FE", "anioVeh": 2018, "monto": 6143.38}, {"fecha": "2026-02-13", "poliza": "A-PA-0000004657", "marca": "SUZUKI", "modelo": "ALTO", "anioVeh": 2020, "monto": 20129.95}, {"fecha": "2026-02-17", "poliza": "A-PA-0000004673", "marca": "KIA", "modelo": "SELTOS", "anioVeh": 2023, "monto": 38297.77}, {"fecha": "2026-03-23", "poliza": "A-PA-0000004863", "marca": "HONDA", "modelo": "CIVIC", "anioVeh": 2018, "monto": 40055.05}, {"fecha": "2026-03-30", "poliza": "A-PA-0000004973", "marca": "SUZUKI", "modelo": "CIAZ", "anioVeh": 2017, "monto": 25349.85}, {"fecha": "2026-03-31", "poliza": "A-PL-0000001023", "marca": "SUZUKI", "modelo": "SWIFT", "anioVeh": 2012, "monto": 5669.24}, {"fecha": "2026-04-15", "poliza": "A-PA-0000005108", "marca": "KIA", "modelo": "SELTOS", "anioVeh": 2022, "monto": 37724.83}, {"fecha": "2026-04-16", "poliza": "A-PA-0000005115", "marca": "KIA", "modelo": "SPORTAGE", "anioVeh": 2017, "monto": 34500.01}, {"fecha": "2026-05-01", "poliza": "A-PA-0000005241", "marca": "CHEVROLET", "modelo": "TAHOE", "anioVeh": 2017, "monto": 45228.53}, {"fecha": "2026-05-14", "poliza": "A-PA-0000005317", "marca": "SUZUKI", "modelo": "FRONX", "anioVeh": 2024, "monto": 31412.81}, {"fecha": "2026-06-18", "poliza": "A-PA-0000005597", "marca": "KIA", "modelo": "K5", "anioVeh": 2014, "monto": 24580.35}, {"fecha": "2026-06-30", "poliza": "A-PL-0000001298", "marca": "KIA", "modelo": "PICANTO", "anioVeh": 2015, "monto": 5669.24}, {"fecha": "2026-07-09", "poliza": "A-PL-0000001334", "marca": "KIA", "modelo": "PICANTO", "anioVeh": 2018, "monto": 5669.24}, {"fecha": "2026-07-14", "poliza": "A-PL-0000001349", "marca": "HONDA", "modelo": "CRV", "anioVeh": 2014, "monto": 6143.38}, {"fecha": "2026-07-27", "poliza": "A-PL-0000001395", "marca": "KIA", "modelo": "OPTIMA", "anioVeh": 2020, "monto": 5669.24}, {"fecha": "2026-08-24", "poliza": "A-PA-0000006225", "marca": "MITSUBISHI", "modelo": "OUTLANDER", "anioVeh": 2021, "monto": 32117.77}, {"fecha": "2026-08-27", "poliza": "A-PL-0000001507", "marca": "TOYOTA", "modelo": "PASSO", "anioVeh": 2011, "monto": 5669.24}, {"fecha": "2026-09-15", "poliza": "A-PA-0000006404", "marca": "KIA", "modelo": "SELTOS", "anioVeh": 2024, "monto": 40742.83}, {"fecha": "2026-10-15", "poliza": "A-PL-0000001649", "marca": "HYUNDAI", "modelo": "CANTUS", "anioVeh": 2017, "monto": 6143.38}];
 
 const MONTH_NAMES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 let contigoChart = null;
@@ -747,14 +749,24 @@ function renderContigo(yearSel){
     data:{
       labels: chartLabels,
       datasets:[
-        { type:'bar', label:'Pólizas', data: chartData, backgroundColor: chartColors, borderRadius:4, maxBarThickness:32, order:2 },
+        { type:'bar', label:'Pólizas', data: chartData, backgroundColor: chartColors, borderRadius:4, maxBarThickness:32, order:2,
+          datalabels:{ display:false } },
         { type:'line', label:'% sobre el total', data: pctData, yAxisID:'y1', borderColor: COLORS.pctline, backgroundColor: COLORS.pctline,
-          borderWidth:2, pointRadius:3, pointBackgroundColor: COLORS.pctline, tension:0.25, hidden: !contigoShowPct, order:1 }
+          borderWidth:2, pointRadius:3, pointBackgroundColor: COLORS.pctline, tension:0.25, hidden: !contigoShowPct, order:1,
+          datalabels:{
+            display:(ctx)=> contigoShowPct && chartData[ctx.dataIndex] > 0,
+            align:'top', anchor:'end', offset:8,
+            color: COLORS.pctline, font:{family:"'Work Sans', sans-serif", size:10.5, weight:'700'},
+            backgroundColor:'rgba(255,255,255,0.92)', borderRadius:4, padding:{top:2,bottom:1,left:5,right:5},
+            formatter:(value)=> value.toFixed(1)+'%'
+          } }
       ]
     },
+    plugins:[ChartDataLabels],
     options:{
       responsive:true,
       maintainAspectRatio:false,
+      layout:{padding:{top:28}},
       scales:{
         x:{ grid:{display:false}, ticks:{ color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11} } },
         y:{ beginAtZero:true, ticks:{ stepSize:1, color: tickColor(), font:{family:"'Work Sans', sans-serif", size:11} }, grid:{ color: gridColor() }, title:{display:true, text:'Pólizas', color:tickColor(), font:{family:"'Work Sans', sans-serif", size:11}} },
@@ -952,3 +964,5 @@ function setConsolidadoYear(yearSel){ renderConsolidado(yearSel); }
 </script>
 </body>
 </html>
+
+</body></html>
